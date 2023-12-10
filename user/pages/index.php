@@ -11,6 +11,9 @@ if (isset($_POST['data'])) {
   $result = mysqli_query($connection, "select count(*) as farmercount from farmer where status = 1");
   $data->farmercount = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+  $result = mysqli_query($connection, "select count(*) as vendorcount from vendor where status = 1");
+  $data->vendorcount = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
   $result = mysqli_query($connection, "SET NAMES utf8");
   $result = mysqli_query($connection, "select count(*) as labourvendorcount from labour_vendor where status = 1");
   $data->labourvendor = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -26,8 +29,16 @@ if (isset($_POST['data'])) {
   $data->farmerpayment = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
   $result = mysqli_query($connection, "SET NAMES utf8");
+  $result = mysqli_query($connection, "select sum(amount) as vendor_payment from vendor_payment where status = 1");
+  $data->vendorpayment = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+  $result = mysqli_query($connection, "SET NAMES utf8");
   $result = mysqli_query($connection, "select sum(totalamount) as farmer_purchase from farmer_purchase where status = 1");
   $data->farmerpurchase = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+  $result = mysqli_query($connection, "SET NAMES utf8");
+  $result = mysqli_query($connection, "select sum(total) as vendor_purchase from vendor_purchase where status = 1");
+  $data->vendorpurchase = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
   $result = mysqli_query($connection, "SET NAMES utf8");
   $result = mysqli_query($connection, "select sum(amount) as labour_vendor_work from labour_vendor_work where status = 1");
@@ -113,7 +124,7 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-aqua">
               <div class="inner">
-                <h3 id="farmercount">00</h3>
+                <h4 id="farmercount">00</h4>
 
                 <p>Total Farmers</p>
               </div>
@@ -129,7 +140,7 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-yellow">
               <div class="inner">
-                <h3 id="purchasecount">00</h3>
+                <h4 id="purchasecount">00</h4>
 
                 <p>Total Bills</p>
               </div>
@@ -144,7 +155,7 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-purple">
               <div class="inner">
-                <h3 id="farmerpayment">00</h3>
+                <h4 id="farmerpayment">00</h4>
 
                 <p>Total Paid To Farmer</p>
               </div>
@@ -160,7 +171,7 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-green">
               <div class="inner">
-                <h3 id="labourvendorcount">00</h3>
+                <h4 id="labourvendorcount">00</h4>
 
                 <p>Total Labour Vendors</p>
               </div>
@@ -175,7 +186,7 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-primary">
               <div class="inner">
-                <h3 id="labourvendorbill">00</h3>
+                <h4 id="labourvendorbill">00</h4>
 
                 <p>Total Labour Vendor Bill</p>
               </div>
@@ -190,7 +201,7 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-maroon">
               <div class="inner">
-                <h3 id="labourvendorpayment">00</h3>
+                <h4 id="labourvendorpayment">00</h4>
 
                 <p>Total Payment Paid </p>
               </div>
@@ -201,6 +212,54 @@ if (isset($_POST['data'])) {
             </div>
           </div>
 
+        </div>
+
+        <div class="row">
+          <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h4 id="vendorcount">00</h4>
+
+                <p>Total Vendor</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-users"></i>
+              </div>
+              <a href="vendors.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->          
+          <!-- ./col -->
+          <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-yellow">
+              <div class="inner">
+                <h4 id="vendorpurchasecount">00</h4>
+
+                <p>Total Bills</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-file-excel-o"></i>
+              </div>
+              <a href="vendorpurchase.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-purple">
+              <div class="inner">
+                <h4 id="vendorpayment">00</h4>
+
+                <p>Total Paid To Vendor</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-inr"></i>
+              </div>
+              <a href="vendorpayment.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
         </div>
       </section>
       <!-- /.content -->
@@ -255,6 +314,10 @@ if (isset($_POST['data'])) {
             $('#labourvendorcount').text(returnedData['labourvendor'][0]['labourvendorcount']);
             $('#labourvendorbill').text(parseFloat(returnedData['labourvendorwork'][0]['labour_vendor_work']).toLocaleString('en-IN'));
             $('#labourvendorpayment').text(parseFloat(returnedData['labourvendorpayment'][0]['labour_vendor_payment']).toLocaleString('en-IN'));
+
+            $('#vendorcount').text(returnedData['vendorcount'][0]['vendorcount']);
+            $('#vendorpurchasecount').text(parseFloat(returnedData['vendorpurchase'][0]['vendor_purchase']).toLocaleString('en-IN'));
+            $('#vendorpayment').text(parseFloat(returnedData['vendorpayment'][0]['vendor_payment']).toLocaleString('en-IN'));
 
           }
         });
