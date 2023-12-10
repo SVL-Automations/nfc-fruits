@@ -8,7 +8,7 @@ $userid = $_SESSION['userid'];
 if (isset($_POST['tabledata'])) {
     $data = new \stdClass();
     $result = mysqli_query($connection, "SET NAMES utf8");
-    $result = mysqli_query($connection, "SELECT p.*,DATE_FORMAT(p.date,'%d/%m/%Y') AS niceDate, v.name as vendorname, v.mobile as vendormobile FROM `payment_send` as p                                         
+    $result = mysqli_query($connection, "SELECT p.*,DATE_FORMAT(p.date,'%d/%m/%Y') AS niceDate, v.name as vendorname, v.mobile as vendormobile FROM `vendor_payment` as p                                         
                                         LEFT JOIN vendor as v ON p.vendorid = v.id
                                         WHERE p.status = 1
                                         order by p.date DESC ");
@@ -33,7 +33,7 @@ if (isset($_POST['Add'])) {
     $remark = mysqli_real_escape_string($connection, $_POST['remark']);
     $date = mysqli_real_escape_string($connection, $_POST['date']);
 
-    $res = mysqli_query($connection, "INSERT INTO `payment_send`(`vendorid`, `date`, `amount`, `mode`, `details`, `updatedby`,`status`)                                           
+    $res = mysqli_query($connection, "INSERT INTO `vendor_payment`(`vendorid`, `date`, `amount`, `mode`, `details`, `updatedby`,`status`)                                           
                                     VALUES('$vendorid','$date','$amount','$type', '$remark','$userid','1')
                                     ");
     if ($res > 0) {
@@ -57,7 +57,7 @@ if (isset($_POST['delete'])) {
     $id = mysqli_real_escape_string($connection, trim(strip_tags($_POST['deleteid'])));
 
 
-    $res = mysqli_query($connection, "UPDATE `payment_send` SET `status`= 0 where id = '$id'");
+    $res = mysqli_query($connection, "UPDATE `vendor_payment` SET `status`= 0 where id = '$id'");
 
     if ($res > 0) {
         $msg->value = 1;

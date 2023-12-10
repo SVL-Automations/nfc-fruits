@@ -14,7 +14,7 @@ if (isset($_POST['vendorid'])) {
     $data->sdate = date_format(date_create($_POST['sdate']), "d/m/Y");
     $data->edate = date_format(date_create($_POST['edate']), "d/m/Y");   
 
-    $res = mysqli_query($connection, "SELECT p.*, DATE_FORMAT(p.date,'%d/%m/%Y') AS niceDate, v.name AS vendorname, v.mobile AS vendormobile,v.address,v.email FROM purchase AS p
+    $res = mysqli_query($connection, "SELECT p.*, DATE_FORMAT(p.date,'%d/%m/%Y') AS niceDate, v.name AS vendorname, v.mobile AS vendormobile,v.address FROM vendor_purchase AS p
                                         LEFT JOIN vendor AS v ON p.vendorid = v.id
                                         WHERE p.vendorid = '$id' AND p.date <='$edate' AND p.date>='$sdate' AND p.status = 1
                                         order by p.date asc");
@@ -22,10 +22,10 @@ if (isset($_POST['vendorid'])) {
         $data->status = "1";
         $data->list = mysqli_fetch_all($res, MYSQLI_ASSOC);
 
-        $res =  mysqli_query($connection, "SELECT IFNULL(SUM(amount),0) as totalSend FROM `payment_send` WHERE status = 1 AND vendorid = '$id' ");
+        $res =  mysqli_query($connection, "SELECT IFNULL(SUM(amount),0) as totalSend FROM `vendor_payment` WHERE status = 1 AND vendorid = '$id' ");
         $data->totalSend = mysqli_fetch_row($res);
 
-        $res =  mysqli_query($connection, "SELECT IFNULL(SUM(total),0) as totalPurchase FROM `purchase` WHERE status = 1 AND vendorid = '$id' AND date < '$sdate'");
+        $res =  mysqli_query($connection, "SELECT IFNULL(SUM(total),0) as totalPurchase FROM `vendor_purchase` WHERE status = 1 AND vendorid = '$id' AND date < '$sdate'");
         $data->totalPurchase = mysqli_fetch_row($res);
 
         $res =  mysqli_query($connection, "SELECT IFNULL(pending,0) as pending FROM `vendor` WHERE id = '$id' ");
@@ -297,14 +297,11 @@ if (isset($_POST['vendorid'])) {
                                 <th class="text-center">Sr.no. </th>
                                 <th class="text-center">Date</th>
                                 <th class="text-center">Caret</th>
-                                <th class="text-center">5KG Box</th>
+                                <th class="text-center">Rope</th>
                                 <th class="text-center">Paper</th>
                                 <th class="text-center">Tape</th>
-                                <th class="text-center">Tawine</th>
-                                <th class="text-center">BR Box</th>
-                                <!-- <th class="text-center">Plane Box</th> -->
-                                <th class="text-center">White Rim</th>
-                                <th class="text-center">Pink Rim</th>
+                                <th class="text-center">Box</th>
+                                <th class="text-center">Cooling Box</th>                                
                             </tr>
                         </thead>
                         <tbody id="salesdetails">
@@ -417,64 +414,53 @@ if (isset($_POST['vendorid'])) {
 
                             var srno = 0;
                             var caretTotal = 0;
-                            var box5kgTotal = 0;
+                            var ropeTotal = 0;
                             var paperTotal = 0;
                             var tapeTotal = 0;
-                            var tawimTotal = 0;
-                            var brboxTotal = 0;
-                            // var planetTotal = 0;
-                            var whiterimTotal = 0;
-                            var pinkrimTotal = 0;
+                            var boxTotal = 0;
+                            var collingboxTotal = 0;
+                            
                             var discount = 0;
                             var total = 0;
 
                             var caretQuantity = 0;
-                            var box5kgQuantity = 0;
+                            var ropeQuantity = 0;
                             var paperQuantity = 0;
                             var tapeQuantity = 0;
-                            var tawimQuantity = 0;
-                            var brboxQuantity = 0;
-                            // var planetQuantity = 0;
-                            var whiterimQuantity = 0;
-                            var pinkrimQuantity = 0;
-
+                            var boxQuantity = 0;
+                            var collingQuantity = 0;
+                           
 
                             $.each(returnedData['list'], function(key, value) {
                                 srno++;
 
                                 caretQuantity = parseFloat(caretQuantity) + parseFloat(value.caret_quantity);
-                                box5kgQuantity = parseFloat(box5kgQuantity) + parseFloat(value.box5kg_quantity);
+                                ropeQuantity = parseFloat(ropeQuantity) + parseFloat(value.rope_quantity);
                                 paperQuantity = parseFloat(paperQuantity) + parseFloat(value.paper_quantity);
                                 tapeQuantity = parseFloat(tapeQuantity) + parseFloat(value.tape_quantity);
-                                tawimQuantity = parseFloat(tawimQuantity) + parseFloat(value.tawim_quantity);
-                                brboxQuantity = parseFloat(brboxQuantity) + parseFloat(value.brbox_quantity);
-                                // planetQuantity = parseFloat(planetQuantity) + parseFloat(value.planetbox_quantity);
-                                whiterimQuantity = parseFloat(whiterimQuantity) + parseFloat(value.whiterim_quantity);
-                                pinkrimQuantity = parseFloat(pinkrimQuantity) + parseFloat(value.pinkrim_quantity);
+                                boxQuantity = parseFloat(boxQuantity) + parseFloat(value.box_quantity);
+                                collingQuantity = parseFloat(collingQuantity) + parseFloat(value.collingbox_quantity);
+                                
 
                                 caretTotal = parseFloat(caretTotal) + (parseFloat(value.caret_rate) * parseFloat(value.caret_quantity));
-                                box5kgTotal = parseFloat(box5kgTotal) + (parseFloat(value.box5kg_rate) * parseFloat(value.box5kg_quantity));
+                                ropeTotal = parseFloat(ropeTotal) + (parseFloat(value.rope_rate) * parseFloat(value.rope_quantity));
                                 paperTotal = parseFloat(paperTotal) + (parseFloat(value.paper_rate) * parseFloat(value.paper_quantity));
                                 tapeTotal = parseFloat(tapeTotal) + (parseFloat(value.tape_rate) * parseFloat(value.tape_quantity));
-                                tawimTotal = parseFloat(tawimTotal) + (parseFloat(value.tawim_rate) * parseFloat(value.tawim_quantity));
-                                brboxTotal = parseFloat(brboxTotal) + (parseFloat(value.brbox_rate) * parseFloat(value.brbox_quantity));
-                                // planetTotal = parseFloat(planetTotal) + (parseFloat(value.planetbox_rate) * parseFloat(value.planetbox_quantity));                                
-                                whiterimTotal = parseFloat(whiterimTotal) + (parseFloat(value.whiterim_rate) * parseFloat(value.whiterim_quantity));                                
-                                pinkrimTotal = parseFloat(pinkrimTotal) + (parseFloat(value.pinkrim_rate) * parseFloat(value.pinkrim_quantity));                                
+                                boxTotal = parseFloat(boxTotal) + (parseFloat(value.box_rate) * parseFloat(value.box_quantity));
+                                collingboxTotal = parseFloat(collingboxTotal) + (parseFloat(value.collingbox_rate) * parseFloat(value.collingbox_quantity));
+                                
                                 total = parseFloat(total) + parseFloat(value.total);
 
                                 var html = '<tr class="odd gradeX">' +
                                     '<td class="text-center">' + srno + '</td>' +
                                     '<td class="text-center">' + value.niceDate + '</td>' +
                                     '<td class="text-center">' + value.caret_quantity + '</td>' +
-                                    '<td class="text-center">' + value.box5kg_quantity + '</td>' +
+                                    '<td class="text-center">' + value.rope_quantity + '</td>' +
                                     '<td class="text-center">' + value.paper_quantity + '</td>' +
                                     '<td class="text-center">' + value.tape_quantity + '</td>' +
-                                    '<td class="text-center">' + value.tawim_quantity + '</td>' +
-                                    '<td class="text-center">' + value.brbox_quantity + '</td>' +
-                                    // '<td class="text-center">' + value.planetbox_quantity + '</td>' +
-                                    '<td class="text-center">' + value.whiterim_quantity + '</td>' +
-                                    '<td class="text-center">' + value.pinkrim_quantity + '</td>' +
+                                    '<td class="text-center">' + value.box_quantity + '</td>' +
+                                    '<td class="text-center">' + value.collingbox_quantity + '</td>' +
+                                    
                                     '</tr>';
                                 $('#salesdetails').append(html);
                             });
@@ -482,32 +468,28 @@ if (isset($_POST['vendorid'])) {
                             var html = '<tr class="odd gradeX">' +
                                 '<td class="text-right" colspan="2"> <b>Total Quantity</b>  </td>' +
                                 '<td class="text-center">' + caretQuantity + '</td>' +
-                                '<td class="text-center">' + box5kgQuantity + '</td>' +
+                                '<td class="text-center">' + ropeQuantity + '</td>' +
                                 '<td class="text-center">' + paperQuantity + '</td>' +
                                 '<td class="text-center">' + tapeQuantity + '</td>' +
-                                '<td class="text-center">' + tawimQuantity + '</td>' +
-                                '<td class="text-center">' + brboxQuantity + '</td>' +
-                                // '<td class="text-center">' + planetQuantity + '</td>' +
-                                '<td class="text-center">' + whiterimQuantity + '</td>' +
-                                '<td class="text-center">' + pinkrimQuantity + '</td>' +
+                                '<td class="text-center">' + boxQuantity + '</td>' +
+                                '<td class="text-center">' + collingQuantity + '</td>' +
+                                
                                 '</tr>';
                             $('#salesdetails').append(html);
 
                             var html = '<tr class="odd gradeX">' +
                                 '<td class="text-right" colspan="2"> <b>Total Price</b>  </td>' +
                                 '<td class="text-center">' + caretTotal.toLocaleString('en-IN') + '/-</td>' +
-                                '<td class="text-center">' + box5kgTotal.toLocaleString('en-IN') + '/-</td>' +
+                                '<td class="text-center">' + ropeTotal.toLocaleString('en-IN') + '/-</td>' +
                                 '<td class="text-center">' + paperTotal.toLocaleString('en-IN') + '/-</td>' +
                                 '<td class="text-center">' + tapeTotal.toLocaleString('en-IN') + '/-</td>' +
-                                '<td class="text-center">' + tawimTotal.toLocaleString('en-IN') + '/-</td>' +
-                                '<td class="text-center">' + brboxTotal.toLocaleString('en-IN') + '/-</td>' +
-                                // '<td class="text-center">' + planetTotal.toLocaleString('en-IN') + '/-</td>' +
-                                '<td class="text-center">' + whiterimTotal.toLocaleString('en-IN') + '/-</td>' +
-                                '<td class="text-center">' + pinkrimTotal.toLocaleString('en-IN') + '/-</td>' +
+                                '<td class="text-center">' + boxTotal.toLocaleString('en-IN') + '/-</td>' +
+                                '<td class="text-center">' + collingboxTotal.toLocaleString('en-IN') + '/-</td>' +
+                                
                                 '</tr>';
                             $('#salesdetails').append(html);
 
-                            var total1 = parseFloat(caretTotal) + parseFloat(box5kgTotal) + parseFloat(paperTotal) + parseFloat(tapeTotal) + parseFloat(tawimTotal) + parseFloat(brboxTotal) + parseFloat(whiterimTotal)+ parseFloat(pinkrimTotal);
+                            var total1 = parseFloat(caretTotal) + parseFloat(ropeTotal) + parseFloat(paperTotal) + parseFloat(tapeTotal) + parseFloat(boxTotal) + parseFloat(collingboxTotal);
                             var pending = parseFloat(returnedData['totalPurchase'][0]) + parseFloat(returnedData['pending'][0]) - parseFloat(returnedData['totalSend'][0]);
                             $("#subtotal").append(parseFloat(total1).toLocaleString('en-IN') + "/-");
                             $("#pending").append(parseFloat(pending).toLocaleString('en-IN') + "/-");

@@ -343,7 +343,7 @@ if (isset($_POST['delete'])) {
 
             //display data table
             function tabledata() {
-                $('#vendorid').empty();
+                $('.select2').empty();
                 $('#example1').dataTable().fnDestroy();
                 $('#example1 tbody').empty();
 

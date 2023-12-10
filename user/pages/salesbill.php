@@ -269,7 +269,7 @@ if (isset($_POST['customerid'])) {
                                 <div class="address">Jath-Athani main road, </div>
                                 <div class="address">A/P - Billur, Tal - Jath,</div>
                                 <div> Dist - Sangli 416-404</div>
-                                <div>Mobile : 90968-42658</div>
+                                <div>Mobile : 91586-47228</div>
                                 <!-- <div>adnanenterprises@gmail.com</div> -->
                         </div>
                     </div>

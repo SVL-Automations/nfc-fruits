@@ -125,7 +125,18 @@
           <li><a href="labourwork.php"><i class="fa fa-cart-plus"></i> Add / Update Labour Work </a></li>
           <li><a href="labourpayment.php"><i class="fa fa-paypal"></i> Add / Update Payment </a></li>
         </ul>
-      </li>           
+      </li>    
+      
+      <li class="treeview">
+        <a href="#">
+          <i class="fa fa-male"></i> <span>Vendor </span> <i class="fa  fa-hand-o-down pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+          <li><a href="vendors.php"><i class="fa fa-male"></i> Add / Update Vendor </a></li>
+          <li><a href="vendorpurchase.php"><i class="fa fa-cart-plus"></i> Add / Update Purchase </a></li>
+          <li><a href="vendorspayment.php"><i class="fa fa-paypal"></i> Add / Update Payment </a></li>
+        </ul>
+      </li>    
     </ul>
   </section>
   <!-- /.sidebar -->

@@ -9,8 +9,8 @@ if (isset($_POST['tabledata'])) {
     $data = new \stdClass();
     $result = mysqli_query($connection, "SET NAMES utf8");
     $result = mysqli_query($connection, "SELECT v.*,
-                                            (SELECT IFNULL(SUM(p.total),0) FROM purchase as p WHERE p.status = 1 and p.vendorid = v.id) as purchaseTotal,
-                                            (SELECT IFNULL(SUM(s.amount),0) FROM payment_send as s WHERE s.status=1 and s.vendorid = v.id ) as sendTotal
+                                            (SELECT IFNULL(SUM(p.total),0) FROM vendor_purchase as p WHERE p.status = 1 and p.vendorid = v.id) as purchaseTotal,
+                                            (SELECT IFNULL(SUM(s.amount),0) FROM vendor_payment as s WHERE s.status=1 and s.vendorid = v.id ) as sendTotal
                                             FROM `vendor` as v
                                             GROUP BY v.id 
                                         ");
@@ -27,13 +27,12 @@ if (isset($_POST['Add'])) {
 
     $name = mysqli_real_escape_string($connection, $_POST['name']);
     $address = mysqli_real_escape_string($connection, $_POST['address']);
-    $details = mysqli_real_escape_string($connection, $_POST['details']);
-    $email = mysqli_real_escape_string($connection, $_POST['email']);
+    $details = mysqli_real_escape_string($connection, $_POST['details']);    
     $mobile = mysqli_real_escape_string($connection, $_POST['mobile']);
     $pending = mysqli_real_escape_string($connection, $_POST['pending']);
 
-    $res = mysqli_query($connection, "INSERT INTO `vendor`(`name`, `mobile`, `email`, `details`, `address`, `pending`, `status`)
-                                    VALUES('$name','$mobile','$email','$details','$address','$pending','1')
+    $res = mysqli_query($connection, "INSERT INTO `vendor`(`name`, `mobile`, `details`, `address`, `pending`, `status`)
+                                    VALUES('$name','$mobile','$details','$address','$pending','1')
                                     ");
     if ($res > 0) {
         $msg->value = 1;
@@ -55,15 +54,14 @@ if (isset($_POST['Edit'])) {
 
     $editname = mysqli_real_escape_string($connection, $_POST['editname']);
     $editaddress = mysqli_real_escape_string($connection, $_POST['editaddress']);
-    $editdetails = mysqli_real_escape_string($connection, $_POST['editdetails']);
-    $editemail = mysqli_real_escape_string($connection, $_POST['editemail']);
+    $editdetails = mysqli_real_escape_string($connection, $_POST['editdetails']);    
     $editmobile = mysqli_real_escape_string($connection, $_POST['editmobile']);
     $id = mysqli_real_escape_string($connection, trim(strip_tags($_POST['id'])));
 
 
     $updaterain = mysqli_query($connection, "UPDATE `vendor` SET 
                                             `name`= '$editname', `address`='$editaddress', 
-                                            `email`='$editemail', `mobile`='$editmobile', `details`='$editdetails'
+                                            `mobile`='$editmobile', `details`='$editdetails'
                                             WHERE id = '$id'
                                         ");
 
@@ -169,8 +167,7 @@ if (isset($_POST['Edit'])) {
                                         <tr>
                                             <th class='text-center'>SrNo </th>
                                             <th class='text-center'>Name </th>
-                                            <th class='text-center'>Address </th>
-                                            <th class='text-center'>Email </th>
+                                            <th class='text-center'>Address </th>                                            
                                             <th class='text-center'>Mobile </th>
                                             <th class='text-center'>Details </th>
                                             <th class='text-center'>Pending </th>
@@ -185,8 +182,7 @@ if (isset($_POST['Edit'])) {
                                         <tr>
                                             <th class='text-center'>SrNo </th>
                                             <th class='text-center'>Name </th>
-                                            <th class='text-center'>Address </th>
-                                            <th class='text-center'>Email </th>
+                                            <th class='text-center'>Address </th>                                            
                                             <th class='text-center'>Mobile </th>
                                             <th class='text-center'>Details </th>
                                             <th class='text-center'>Pending </th>
@@ -229,12 +225,7 @@ if (isset($_POST['Edit'])) {
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Mobile</label>
                                 <input type="number" class="form-control" placeholder="Mobile Number" id="mobile" name="mobile" required min="2222222222">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Email Address</label>
-                                <input type="email" class="form-control" placeholder="Email Address" id="email" name="email">
-                            </div>
+                            </div>                            
 
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Address</label>
@@ -250,7 +241,6 @@ if (isset($_POST['Edit'])) {
                                 <label for="exampleInputEmail1">Pending amount</label>
                                 <input type="number" class="form-control" placeholder="Pending amount" name="pending" id="pending" required pattern="[0-9]+" value="0">
                             </div>
-
 
                         </div>
                         <div class="modal-footer ">
@@ -291,11 +281,6 @@ if (isset($_POST['Edit'])) {
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Mobile</label>
                                 <input type="number" class="form-control" placeholder="Mobile Number" id="editmobile" name="editmobile" required min="2222222222">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Email Address</label>
-                                <input type="email" class="form-control" placeholder="Email Address" id="editemail" name="editemail">
                             </div>
 
                             <div class="form-group">
@@ -381,7 +366,7 @@ if (isset($_POST['Edit'])) {
 
                             button1 = '<button type="submit" name="Edit" id="Edit" ' +
                                 'data-editid="' + value.id + '" data-name="' + value.name +
-                                '" data-mobile="' + value.mobile + '" data-email="' + value.email +
+                                '" data-mobile="' + value.mobile + 
                                 '" data-address="' + value.address + '" data-details="' + value.details +
                                 '" data-pending="' + value.pending +
                                 '" class="btn btn-xs btn-warning edit-button" style= "margin:5px" title=" Edit Vendor " data-toggle="modal" data-target="#modaleditvendor"><i class="fa fa-edit"></i></button>';
@@ -389,8 +374,7 @@ if (isset($_POST['Edit'])) {
                             var html = '<tr class="odd gradeX">' +
                                 '<td class="text-center">' + srno + '</td>' +
                                 '<td class="text-center">' + value.name + '</td>' +
-                                '<td class="text-center">' + value.address + '</td>' +
-                                '<td class="text-center">' + value.email + '</td>' +
+                                '<td class="text-center">' + value.address + '</td>' +                                
                                 '<td class="text-center">' + value.mobile + '</td>' +
                                 '<td class="text-center">' + value.details + '</td>' +
                                 '<td class="text-center">' + parseFloat(parseFloat(value.purchaseTotal) + parseFloat(value.pending) - parseFloat(value.sendTotal)).toLocaleString('en-IN') + "/-" + '</td>' +
