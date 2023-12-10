@@ -8,34 +8,38 @@ date_default_timezone_set('Asia/Kolkata');
 if (isset($_POST['data'])) {
   $data = new \stdClass();
   $result = mysqli_query($connection, "SET NAMES utf8");
-  $result = mysqli_query($connection, "select count(*) as customercount from customer where status = 1");
-  $data->customercount = mysqli_fetch_all($result, MYSQLI_ASSOC);
+  $result = mysqli_query($connection, "select count(*) as farmercount from farmer where status = 1");
+  $data->farmercount = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
   $result = mysqli_query($connection, "SET NAMES utf8");
-  $result = mysqli_query($connection, "select count(*) as vendorcount from vendor where status = 1");
-  $data->vendorcount = mysqli_fetch_all($result, MYSQLI_ASSOC);
+  $result = mysqli_query($connection, "select count(*) as labourvendorcount from labour_vendor where status = 1");
+  $data->labourvendor = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
   $result = mysqli_query($connection, "SET NAMES utf8");
-  $result = mysqli_query($connection, "select count(*) as salescount from sales where status = 1");
-  $data->salescount = mysqli_fetch_all($result, MYSQLI_ASSOC);
+  $result = mysqli_query($connection, "select count(*) as workerscount from workers where status = 1");
+  $data->workerscount = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+
 
   $result = mysqli_query($connection, "SET NAMES utf8");
-  $result = mysqli_query($connection, "select count(*) as purchasecount from purchase where status = 1");
-  $data->purchasecount = mysqli_fetch_all($result, MYSQLI_ASSOC);
+  $result = mysqli_query($connection, "select sum(amount) as farmer_payment from farmer_payment where status = 1");
+  $data->farmerpayment = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
   $result = mysqli_query($connection, "SET NAMES utf8");
-  $result = mysqli_query($connection, "SELECT (SELECT IFNULL(SUM(s.total),0) FROM sales as s WHERE s.status=1) as salesTotal,
-                                              (SELECT IFNULL(SUM(r.amount),0) FROM payment_received as r WHERE r.status=1 ) as receivedTotal,
-                                              (SELECT IFNULL(SUM(c.pending),0) FROM customer as c WHERE c.status=1 ) as pendingTotal");
-  $data->customerPending = mysqli_fetch_all($result, MYSQLI_ASSOC);
+  $result = mysqli_query($connection, "select sum(totalamount) as farmer_purchase from farmer_purchase where status = 1");
+  $data->farmerpurchase = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
   $result = mysqli_query($connection, "SET NAMES utf8");
-  $result = mysqli_query($connection, "SELECT (SELECT IFNULL(SUM(p.total),0) FROM purchase as p WHERE p.status=1) as purchaseTotal,
-                                              (SELECT IFNULL(SUM(s.amount),0) FROM payment_send as s WHERE s.status=1 ) as sendTotal,
-                                              (SELECT IFNULL(SUM(v.pending),0) FROM vendor as v WHERE v.status=1 ) as pendingTotal");
-  $data->vendorPending = mysqli_fetch_all($result, MYSQLI_ASSOC);
+  $result = mysqli_query($connection, "select sum(amount) as labour_vendor_work from labour_vendor_work where status = 1");
+  $data->labourvendorwork = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+  $result = mysqli_query($connection, "SET NAMES utf8");
+  $result = mysqli_query($connection, "select sum(amount) as labour_vendor_payment from labour_vendor_payment where status = 1");
+  $data->labourvendorpayment = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+  $result = mysqli_query($connection, "SET NAMES utf8");
+  $result = mysqli_query($connection, "select sum(amount) as worker_payment from worker_payment where status = 1");
+  $data->workerpayment = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
   echo json_encode($data);
   exit();
@@ -109,14 +113,14 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-aqua">
               <div class="inner">
-                <h3 id="customercount">00</h3>
+                <h3 id="farmercount">00</h3>
 
-                <p>Total Customers</p>
+                <p>Total Farmers</p>
               </div>
               <div class="icon">
                 <i class="fa fa-users"></i>
               </div>
-              <a href="customer.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="farmer.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
           <!-- ./col -->          
@@ -125,14 +129,14 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-yellow">
               <div class="inner">
-                <h3 id="salescount">00</h3>
+                <h3 id="purchasecount">00</h3>
 
                 <p>Total Bills</p>
               </div>
               <div class="icon">
                 <i class="fa fa-file-excel-o"></i>
               </div>
-              <a href="sales.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="farmerpurchase.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
 
@@ -140,14 +144,14 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-purple">
               <div class="inner">
-                <h3 id="customerPending">00</h3>
+                <h3 id="farmerpayment">00</h3>
 
-                <p>Total Pending Customer</p>
+                <p>Total Paid To Farmer</p>
               </div>
               <div class="icon">
                 <i class="fa fa-inr"></i>
               </div>
-              <a href="customer.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="farmerpayment.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         </div>
@@ -156,14 +160,14 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-green">
               <div class="inner">
-                <h3 id="vendorcount">00</h3>
+                <h3 id="labourvendorcount">00</h3>
 
-                <p>Total Vendors</p>
+                <p>Total Labour Vendors</p>
               </div>
               <div class="icon">
                 <i class="fa fa-user-secret"></i>
               </div>
-              <a href="vendors.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="labour.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
 
@@ -171,14 +175,14 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-primary">
               <div class="inner">
-                <h3 id="purchasecount">00</h3>
+                <h3 id="labourvendorbill">00</h3>
 
-                <p>Total Purchase</p>
+                <p>Total Labour Vendor Bill</p>
               </div>
               <div class="icon">
                 <i class="fa fa-cart-plus"></i>
               </div>
-              <a href="purchase.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="labourwork.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
 
@@ -186,14 +190,14 @@ if (isset($_POST['data'])) {
             <!-- small box -->
             <div class="small-box bg-maroon">
               <div class="inner">
-                <h3 id="vendorPending">00</h3>
+                <h3 id="labourvendorpayment">00</h3>
 
-                <p>Total Pending Vendor</p>
+                <p>Total Payment Paid </p>
               </div>
               <div class="icon">
                 <i class="fa fa-inr"></i>
               </div>
-              <a href="vendors.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="labourpayment.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
 
@@ -244,16 +248,14 @@ if (isset($_POST['data'])) {
             // console.log(response); 
             var returnedData = JSON.parse(response);
             console.log(returnedData);            
-            $('#customercount').text(returnedData['customercount'][0]['customercount']);
-            $('#vendorcount').text(returnedData['vendorcount'][0]['vendorcount']);
-            $('#salescount').text(returnedData['salescount'][0]['salescount']);
-            $('#purchasecount').text(returnedData['purchasecount'][0]['purchasecount']);
+            $('#farmercount').text(returnedData['farmercount'][0]['farmercount']);
+            $('#purchasecount').text(parseFloat(returnedData['farmerpurchase'][0]['farmer_purchase']).toLocaleString('en-IN'));
+            $('#farmerpayment').text(parseFloat(returnedData['farmerpayment'][0]['farmer_payment']).toLocaleString('en-IN'));
 
-            var cPending = parseFloat(returnedData['customerPending'][0]['salesTotal']) + parseFloat(returnedData['customerPending'][0]['pendingTotal']) - parseFloat(returnedData['customerPending'][0]['receivedTotal']);
-            $('#customerPending').text(parseFloat(cPending).toLocaleString('en-IN') );
+            $('#labourvendorcount').text(returnedData['labourvendor'][0]['labourvendorcount']);
+            $('#labourvendorbill').text(parseFloat(returnedData['labourvendorwork'][0]['labour_vendor_work']).toLocaleString('en-IN'));
+            $('#labourvendorpayment').text(parseFloat(returnedData['labourvendorpayment'][0]['labour_vendor_payment']).toLocaleString('en-IN'));
 
-            var vPending = parseFloat(returnedData['vendorPending'][0]['purchaseTotal']) + parseFloat(returnedData['vendorPending'][0]['pendingTotal']) - parseFloat(returnedData['vendorPending'][0]['sendTotal']);
-            $('#vendorPending').text(parseFloat(vPending).toLocaleString('en-IN'));
           }
         });
       }
