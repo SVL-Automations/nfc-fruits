@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 10, 2023 at 03:59 PM
+-- Generation Time: Dec 11, 2023 at 07:44 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -44,7 +44,8 @@ CREATE TABLE `farmer` (
 --
 
 INSERT INTO `farmer` (`id`, `name`, `mobile`, `rate`, `discount`, `details`, `address`, `pending`, `status`) VALUES
-(1, 'Mosin', '8888763562', 10, 1, '-', 'Kop', 0, 1);
+(1, 'Mosin', '8888763562', 10, 1, '-', 'Kop', 0, 1),
+(2, 'Demo', '2222222223', 0, 0, 'Kop', 'Kop', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -102,7 +103,8 @@ CREATE TABLE `farmer_purchase` (
 INSERT INTO `farmer_purchase` (`id`, `farmerid`, `date`, `carate`, `weight`, `totalweight`, `discount`, `actualweight`, `rate`, `totalamount`, `status`, `time`) VALUES
 (1, 1, '0000-00-00', 2000, 10, 0, 5, 19000, 2.5, 11875, 0, '2023-12-10 20:05:12'),
 (2, 1, '0000-00-00', 1000, 10, 0, 1, 9900, 1, 2475, 0, '2023-12-10 20:06:25'),
-(3, 1, '2023-12-06', 1000, 10, 10000, 1, 9900, 1, 2475, 1, '2023-12-10 20:08:37');
+(3, 1, '2023-12-06', 1000, 10, 10000, 1, 9900, 1, 2475, 1, '2023-12-10 20:08:37'),
+(4, 1, '2023-12-05', 1000, 6, 6000, 5, 5970, 1, 1492.5, 1, '2023-12-11 22:49:36');
 
 -- --------------------------------------------------------
 
@@ -165,6 +167,10 @@ CREATE TABLE `labour_vendor_work` (
   `date` date NOT NULL,
   `gents` int(11) NOT NULL,
   `ladies` int(11) NOT NULL,
+  `gentscharges` double NOT NULL,
+  `ladiescharges` double NOT NULL,
+  `vehicle` varchar(100) NOT NULL,
+  `vehiclecharges` double NOT NULL,
   `location` text NOT NULL,
   `amount` double NOT NULL,
   `time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -175,8 +181,14 @@ CREATE TABLE `labour_vendor_work` (
 -- Dumping data for table `labour_vendor_work`
 --
 
-INSERT INTO `labour_vendor_work` (`id`, `labourvendorid`, `date`, `gents`, `ladies`, `location`, `amount`, `time`, `status`) VALUES
-(1, 1, '2023-11-29', 5, 1, '-', 1000, '2023-12-03 17:05:20', 1);
+INSERT INTO `labour_vendor_work` (`id`, `labourvendorid`, `date`, `gents`, `ladies`, `gentscharges`, `ladiescharges`, `vehicle`, `vehiclecharges`, `location`, `amount`, `time`, `status`) VALUES
+(1, 1, '2023-11-29', 5, 1, 0, 0, '', 0, '-', 1000, '2023-12-03 17:05:20', 1),
+(2, 1, '2023-12-04', 10, 5, 0, 0, '', 0, '10', 1000, '2023-12-10 17:44:33', 1),
+(3, 1, '2023-12-05', 1, 1, 0, 0, '', 0, '1', 1000, '2023-12-10 17:45:59', 1),
+(4, 1, '2023-12-05', 10, 5, 500, 100, '', 5, '2000', 7500, '2023-12-11 18:30:38', 1),
+(5, 1, '2023-12-05', 10, 5, 500, 100, '', 5, '2000', 7500, '2023-12-11 18:31:03', 1),
+(6, 1, '2023-12-05', 10, 5, 500, 100, 'MH09EK9844', 5, '2000', 7500, '2023-12-11 18:31:53', 1),
+(7, 1, '2023-12-12', 20, 10, 100, 50, 'MH09EK9844', 500, 'dem', 3000, '2023-12-11 18:38:39', 1);
 
 -- --------------------------------------------------------
 
@@ -199,6 +211,92 @@ CREATE TABLE `login` (
 
 INSERT INTO `login` (`id`, `username`, `password`, `email`, `name`, `status`) VALUES
 (1, 'mosin', 'e10adc3949ba59abbe56e057f20f883e', 'shdinde@gmail.com', 'Shailesh Dinde', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vendor`
+--
+
+CREATE TABLE `vendor` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `mobile` varchar(20) NOT NULL,
+  `details` text NOT NULL,
+  `address` text NOT NULL,
+  `pending` double NOT NULL,
+  `status` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `vendor`
+--
+
+INSERT INTO `vendor` (`id`, `name`, `mobile`, `details`, `address`, `pending`, `status`) VALUES
+(1, 'Mosin', '8888763560', 'Kop', 'Kolhapur', 0, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vendor_payment`
+--
+
+CREATE TABLE `vendor_payment` (
+  `id` int(11) NOT NULL,
+  `vendorid` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `amount` double NOT NULL,
+  `mode` varchar(100) NOT NULL,
+  `details` text NOT NULL,
+  `lastupdate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updatedby` int(11) NOT NULL,
+  `status` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `vendor_payment`
+--
+
+INSERT INTO `vendor_payment` (`id`, `vendorid`, `date`, `amount`, `mode`, `details`, `lastupdate`, `updatedby`, `status`) VALUES
+(1, 1, '2023-12-05', 1000, 'UPI', 'demo', '2023-12-10 18:01:29', 1, 1),
+(2, 1, '2023-12-06', 1000, 'Online', 'demo', '2023-12-11 18:01:04', 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vendor_purchase`
+--
+
+CREATE TABLE `vendor_purchase` (
+  `id` int(11) NOT NULL,
+  `vendorid` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `caret_rate` double NOT NULL,
+  `rope_rate` double NOT NULL,
+  `paper_rate` double NOT NULL,
+  `tape_rate` double NOT NULL,
+  `box_rate` double NOT NULL,
+  `collingbox_rate` double NOT NULL,
+  `caret_quantity` double NOT NULL,
+  `rope_quantity` double NOT NULL,
+  `paper_quantity` double NOT NULL,
+  `tape_quantity` double NOT NULL,
+  `box_quantity` double NOT NULL,
+  `collingbox_quantity` double NOT NULL,
+  `discount` double NOT NULL,
+  `other_charges` decimal(10,0) NOT NULL,
+  `total` double NOT NULL,
+  `lastupdate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `lastupdateby` int(11) NOT NULL,
+  `status` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `vendor_purchase`
+--
+
+INSERT INTO `vendor_purchase` (`id`, `vendorid`, `date`, `caret_rate`, `rope_rate`, `paper_rate`, `tape_rate`, `box_rate`, `collingbox_rate`, `caret_quantity`, `rope_quantity`, `paper_quantity`, `tape_quantity`, `box_quantity`, `collingbox_quantity`, `discount`, `other_charges`, `total`, `lastupdate`, `lastupdateby`, `status`) VALUES
+(1, 1, '2023-12-05', 10, 10, 45, 300, 32, 2000, 100, 20, 500, 20, 1000, 10, 0, 0, 81700, '2023-12-10 18:23:01', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -303,6 +401,24 @@ ALTER TABLE `login`
   ADD UNIQUE KEY `username` (`username`);
 
 --
+-- Indexes for table `vendor`
+--
+ALTER TABLE `vendor`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `vendor_payment`
+--
+ALTER TABLE `vendor_payment`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `vendor_purchase`
+--
+ALTER TABLE `vendor_purchase`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `workers`
 --
 ALTER TABLE `workers`
@@ -322,7 +438,7 @@ ALTER TABLE `worker_payment`
 -- AUTO_INCREMENT for table `farmer`
 --
 ALTER TABLE `farmer`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `farmer_payment`
@@ -334,7 +450,7 @@ ALTER TABLE `farmer_payment`
 -- AUTO_INCREMENT for table `farmer_purchase`
 --
 ALTER TABLE `farmer_purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `labour_vendor`
@@ -352,12 +468,30 @@ ALTER TABLE `labour_vendor_payment`
 -- AUTO_INCREMENT for table `labour_vendor_work`
 --
 ALTER TABLE `labour_vendor_work`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `vendor`
+--
+ALTER TABLE `vendor`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `vendor_payment`
+--
+ALTER TABLE `vendor_payment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `vendor_purchase`
+--
+ALTER TABLE `vendor_purchase`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
