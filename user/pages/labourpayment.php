@@ -219,7 +219,7 @@ if (isset($_POST['delete'])) {
 
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Labour Vendor Name </label>
-                                <select class="form-control select2 " style="width: 100%;" required name="vendorid" id="vendorid">
+                                <select class="form-control select2 select3" style="width: 100%;" required name="vendorid" id="vendorid">
                                 </select>
                             </div>
 
@@ -281,7 +281,7 @@ if (isset($_POST['delete'])) {
 
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Vendor Name </label>
-                                <select class="form-control select2 " style="width: 100%;" required name="vendorid" id="vendorid">
+                                <select class="form-control select2 select3" style="width: 100%;" required name="vendorid" id="vendorid">
                                 </select>
                             </div>
 
@@ -340,7 +340,7 @@ if (isset($_POST['delete'])) {
 
             //display data table
             function tabledata() {
-                $('.select2').empty();
+                $('.select3').empty();
                 $('#example1').dataTable().fnDestroy();
                 $('#example1 tbody').empty();
 
@@ -377,9 +377,9 @@ if (isset($_POST['delete'])) {
                             $('#example1 tbody').append(html);
                         });
 
-                        $('.select2').append(new Option("Select labour", ""));
+                        $('.select3').append(new Option("Select labour", ""));
                         $.each(returnedData['labour_vendorlist'], function(key, value) {
-                            $('.select2').append(new Option(value.name, value.id));                            
+                            $('.select3').append(new Option(value.name, value.id));                            
                         });
 
                         $('#example1').DataTable({

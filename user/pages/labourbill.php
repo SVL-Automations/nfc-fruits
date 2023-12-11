@@ -296,8 +296,10 @@ if (isset($_POST['vendorid'])) {
                             <tr>
                                 <th class="text-center">Sr.no. </th>
                                 <th class="text-center">Date</th>                                
-                                <th class="text-center">Gents</th>
-                                <th class="text-center">Ladies</th>
+                                <th class="text-center">Gents/Charges</th>
+                                <th class="text-center">Ladies/Charges</th>
+                                <th class="text-center">Vehicle</th>
+                                <th class="text-center">Charges</th>
                                 <th class="text-center">Location</th>
                                 <th class="text-center">Amount</th>                                
                             </tr>
@@ -419,15 +421,17 @@ if (isset($_POST['vendorid'])) {
                             $.each(returnedData['list'], function(key, value) {
                                 srno++;                                
 
-                                gentsTotal = parseFloat(gentsTotal) + parseFloat(value.gents);
-                                ladiesTotal = parseFloat(ladiesTotal) + parseFloat(value.ladies);                                
+                                // gentsTotal = parseFloat(gentsTotal) + parseFloat(value.gents);
+                                // ladiesTotal = parseFloat(ladiesTotal) + parseFloat(value.ladies);                                
                                 total = parseFloat(total) + parseFloat(value.amount);
 
                                 var html = '<tr class="odd gradeX">' +
                                     '<td class="text-center">' + srno + '</td>' +
                                     '<td class="text-center">' + value.niceDate + '</td>' +
-                                    '<td class="text-center">' + value.gents + '</td>' +
-                                    '<td class="text-center">' + value.ladies + '</td>' +                                    
+                                    '<td class="text-center">' + value.gents + ' / ' + value.gentscharges + '</td>' +
+                                    '<td class="text-center">' + value.ladies + ' / ' + value.ladiescharges + '</td>' +                                    
+                                    '<td class="text-center">' + value.vehicle + '</td>' +
+                                    '<td class="text-center">' + value.vehiclecharges + '</td>' +
                                     '<td class="text-center">' + value.location + '</td>' +
                                     '<td class="text-center">' + value.amount.toLocaleString('en-IN') + '/-</td>' +
                                     '</tr>';
@@ -435,10 +439,7 @@ if (isset($_POST['vendorid'])) {
                             });
 
                             var html = '<tr class="odd gradeX">' +
-                                '<td class="text-right" colspan="2"> <b>Total Quantity</b>  </td>' +
-                                '<td class="text-center">' + gentsTotal + '</td>' +
-                                '<td class="text-center">' + ladiesTotal + '</td>' +
-                                '<td class="text-center">-</td>' +
+                                '<td class="text-right" colspan="7"> <b>Total Amount</b>  </td>' +                                
                                 '<td class="text-center">' + total.toLocaleString('en-IN') + '/-</td>' +                                
                                 '</tr>';
                             $('#salesdetails').append(html);

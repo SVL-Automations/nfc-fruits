@@ -30,8 +30,13 @@ if (isset($_POST['Add'])) {
     $msg = new \stdClass();
     $vendorid = mysqli_real_escape_string($connection, $_POST['vendorid']);
     $date = mysqli_real_escape_string($connection, $_POST['date']);
+    
+    $gents = mysqli_real_escape_string($connection, $_POST['gents']);    
+    $gentscharges = mysqli_real_escape_string($connection, $_POST['gentscharges']);
     $ladies = mysqli_real_escape_string($connection, $_POST['ladies']);
-    $gents = mysqli_real_escape_string($connection, $_POST['gents']);
+    $ladiescharges = mysqli_real_escape_string($connection, $_POST['ladiescharges']);
+    $vehicle = mysqli_real_escape_string($connection, $_POST['vehiclenumber']);
+    $vehiclecharges = mysqli_real_escape_string($connection, $_POST['vehiclecharges']);
     $location = mysqli_real_escape_string($connection, $_POST['location']);
     $amount = mysqli_real_escape_string($connection, $_POST['amount']);
 
@@ -41,8 +46,10 @@ if (isset($_POST['Add'])) {
 
     $res = mysqli_query($connection, "INSERT INTO `labour_vendor_work`(
                                                 `labourvendorid`, `date`, `gents`, `ladies`, 
+                                                `gentscharges`, `ladiescharges`, `vehicle`, `vehiclecharges`,
                                                 `location`, `amount`, `status`)
                                     VALUES('$vendorid','$date','$gents','$ladies',
+                                            '$gentscharges','$ladiescharges','$vehicle','$vehiclecharges',
                                             '$location','$amount','1')
                                     ");
     if ($res > 0) {
@@ -169,7 +176,11 @@ if (isset($_POST['delete'])) {
                                             <th class='text-center'>Vendor Name </th>
                                             <th class='text-center'>Mobile </th>
                                             <th class='text-center'>Gents </th>
+                                            <th class='text-center'>Gents/Charge </th>
                                             <th class='text-center'>Ladies </th>
+                                            <th class='text-center'>Ladies/Charge </th>
+                                            <th class='text-center'>Vehicle </th>
+                                            <th class='text-center'>Vehicle Charge</th>
                                             <th class='text-center'>Location </th>
                                             <th class='text-center'>Amount </th>
                                         </tr>
@@ -187,7 +198,11 @@ if (isset($_POST['delete'])) {
                                             <th class='text-center'>Vendor Name </th>
                                             <th class='text-center'>Mobile </th>
                                             <th class='text-center'>Gents </th>
+                                            <th class='text-center'>Gents/Charge </th>
                                             <th class='text-center'>Ladies </th>
+                                            <th class='text-center'>Ladies/Charge </th>
+                                            <th class='text-center'>Vehicle </th>
+                                            <th class='text-center'>Vehicle Charge</th>
                                             <th class='text-center'>Location </th>
                                             <th class='text-center'>Amount </th>
                                         </tr>
@@ -236,8 +251,28 @@ if (isset($_POST['delete'])) {
                             </div>
 
                             <div class="form-group">
+                                <label for="exampleInputEmail1">Per Gents Amount</label>
+                                <input type="number" class="form-control" placeholder="Gents Charges" name="gentscharges" id="gentscharges" required min="0" value="0">
+                            </div>
+
+                            <div class="form-group">
                                 <label for="exampleInputEmail1">Ladies</label>
                                 <input type="number" class="form-control" placeholder="Total Ladies" name="ladies" id="ladies" required min="0" value="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Per Ladies Amount</label>
+                                <input type="number" class="form-control" placeholder="Ladies Charges" name="ladiescharges" id="ladiescharges" required min="0" value="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Vehicle Number</label>
+                                <input type="text" class="form-control" placeholder="Vehicle Number" name="vehiclenumber" id="vehiclenumber" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Vehicle Charges</label>
+                                <input type="number" class="form-control" placeholder="Vehicle Charges" name="vehiclecharges" id="vehiclecharges" required min="0" value="0">
                             </div>
 
                             <div class="form-group">
@@ -247,7 +282,7 @@ if (isset($_POST['delete'])) {
 
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Amount</label>
-                                <input type="number" class="form-control" placeholder="Total Amount" name="amount" id="amount" required min="0" value="0">
+                                <input type="number" class="form-control" placeholder="Total Amount" name="amount" id="amount" required min="0" value="0" readonly>
                             </div>
 
                         </div>
@@ -375,7 +410,11 @@ if (isset($_POST['delete'])) {
                                 '<td class="text-center">' + value.labourname + '</td>' +
                                 '<td class="text-center">' + value.labourmobile + '</td>' +
                                 '<td class="text-center">' + value.gents + '</td>' +
+                                '<td class="text-center">' + value.gentscharges + '</td>' +
                                 '<td class="text-center">' + value.ladies + '</td>' +
+                                '<td class="text-center">' + value.ladiescharges + '</td>' +
+                                '<td class="text-center">' + value.vehicle + '</td>' +
+                                '<td class="text-center">' + value.vehiclecharges + '</td>' +
                                 '<td class="text-center">' + value.location + '</td>' +
                                 '<td class="text-center">' + value.amount + '</td>' +
 
@@ -471,6 +510,23 @@ if (isset($_POST['delete'])) {
                     }
                 });
             });
+
+            $(".form-control").change(function(e) {                
+                totalCalculation();
+            });
+
+            function totalCalculation() {  
+                var gentscharges = (isNaN(parseFloat($("#gents").val())) ? 0 : parseFloat($("#gents").val())) *
+                    (isNaN(parseFloat($("#gentscharges").val())) ? 0 : parseFloat($("#gentscharges").val()));
+                
+                var ladiescharges = (isNaN(parseFloat($("#ladies").val())) ? 0 : parseFloat($("#ladies").val())) *
+                    (isNaN(parseFloat($("#ladiescharges").val())) ? 0 : parseFloat($("#ladiescharges").val()));
+
+                $("#amount").val(
+                    (isNaN(parseFloat($("#vehiclecharges").val())) ? 0 : parseFloat($("#vehiclecharges").val())) +
+                    gentscharges + ladiescharges);
+                
+            }
         })
     </script>
 </body>
