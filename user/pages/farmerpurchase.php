@@ -159,7 +159,7 @@ if (isset($_POST['delete'])) {
                             <div class="box-header with-border">
                                 <h3 class="box-title"> Purchase Details </h3>
                                 <a class="btn btn-social-icon btn-success pull-right" title="Add Purchase" data-toggle="modal" data-target="#modaladdpurchase"><i class="fa fa-plus"></i></a>
-                                <!-- <a class="btn btn-social-icon btn-warning pull-right" title="Generate Bill" data-toggle="modal" data-target="#modalpurchasebill" style="margin-right: 5px !important;"><i class="fa fa-file-excel-o"></i></a> -->
+                                <a class="btn btn-social-icon btn-warning pull-right" title="Generate Bill" data-toggle="modal" data-target="#modalpurchasebill" style="margin-right: 5px !important;"><i class="fa fa-file-excel-o"></i></a>
                             </div>
                             <div class="alert " id="alertclass" style="display: none">
                                 <button type="button" class="close" onclick="$('#alertclass').hide()">×</button>
@@ -179,7 +179,7 @@ if (isset($_POST['delete'])) {
                                             <th class='text-center'>Caret </th>
                                             <th class='text-center'>Weight / Caret </th>
                                             <th class='text-center'>Total Weight </th>
-                                            <th class='text-center'>Discount / 100Kg </th>
+                                            <th class='text-center'>Discount / 1000Kg </th>
                                             <th class='text-center'>Actual Weight </th>
                                             <th class='text-center'>Rate / 4kg </th>
                                             <th class='text-center'>Total amount </th>
@@ -200,7 +200,7 @@ if (isset($_POST['delete'])) {
                                             <th class='text-center'>Caret </th>
                                             <th class='text-center'>Weight / Caret </th>
                                             <th class='text-center'>Total Weight </th>
-                                            <th class='text-center'>Discount / 100Kg </th>
+                                            <th class='text-center'>Discount / 1000Kg </th>
                                             <th class='text-center'>Actual Weight </th>
                                             <th class='text-center'>Rate / 4kg </th>
                                             <th class='text-center'>Total amount </th>
@@ -258,7 +258,7 @@ if (isset($_POST['delete'])) {
                             </div>
 
                             <div class="form-group">
-                                <label for="exampleInputEmail1">Discount per 100Kg</label>
+                                <label for="exampleInputEmail1">Discount per 1000Kg</label>
                                 <input type="number" step="any" class="form-control" placeholder="Discount" name="discount" id="discount" required min="0" value="0">
                             </div>
 
@@ -293,7 +293,7 @@ if (isset($_POST['delete'])) {
         <!-- End Add purchase modal -->
 
         <!-- Add  purchase bill modal -->
-        <form id="generatepurchasebill" action="purchasebill.php" method="get">
+        <form id="generatepurchasebill" action="farmerpurchasebill.php" method="get">
             <div class="modal fade" id="modalpurchasebill" style="display: none;">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -379,7 +379,7 @@ if (isset($_POST['delete'])) {
 
             //display data table
             function tabledata() {
-                $('#farmerid').empty();
+                $('.select2').empty();
                 $('#example1').dataTable().fnDestroy();
                 $('#example1 tbody').empty();
 
@@ -399,12 +399,10 @@ if (isset($_POST['delete'])) {
                             button1 = '';
                             button2 = '';
 
-
                             button1 = '<button type="submit" name="Delete" id="Delete" ' +
                                 'data-deleteid="' + value.id + '"' +
                                 '" class="btn btn-xs btn-danger delete-button" style= "margin:5px" title=" Delete purchase bill " ><i class="fa fa-times"></i></button>';
                           
-
                             var html = '<tr class="odd gradeX">' +
                                 '<td class="text-center">' + button1 + '</td>' +
                                 '<td class="text-center">' + srno + '</td>' +
@@ -586,7 +584,7 @@ if (isset($_POST['delete'])) {
 
                 var totalweight = isNaN(parseFloat($("#totalweight").val())) ? 0 : parseFloat($("#totalweight").val());
                 $("#actualweight").val(
-                    totalweight - (totalweight/100 * (isNaN(parseFloat($("#discount").val())) ? 0 : parseFloat($("#discount").val())))
+                    totalweight - (totalweight/1000 * (isNaN(parseFloat($("#discount").val())) ? 0 : parseFloat($("#discount").val())))
                     );
 
                 $("#totalamount").val(

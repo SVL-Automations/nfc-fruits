@@ -29,8 +29,8 @@ if (isset($_POST['Add'])) {
     $address = mysqli_real_escape_string($connection, $_POST['address']);
     $details = mysqli_real_escape_string($connection, $_POST['details']);    
     $mobile = mysqli_real_escape_string($connection, $_POST['mobile']);
-    $rate = mysqli_real_escape_string($connection, $_POST['rate']);
-    $discount = mysqli_real_escape_string($connection, $_POST['discount']);
+    $rate = 0;
+    $discount = 0;
     $pending = mysqli_real_escape_string($connection, $_POST['pending']);
 
     $res = mysqli_query($connection, "INSERT INTO `farmer`(`name`, `mobile`,  `details`, `address`, `pending`, `status`,`rate`,`discount`)
@@ -58,8 +58,8 @@ if (isset($_POST['Edit'])) {
     $editaddress = mysqli_real_escape_string($connection, $_POST['editaddress']);
     $editdetails = mysqli_real_escape_string($connection, $_POST['editdetails']);    
     $editmobile = mysqli_real_escape_string($connection, $_POST['editmobile']);
-    $editrate = mysqli_real_escape_string($connection, $_POST['editrate']);
-    $editdiscount = mysqli_real_escape_string($connection, $_POST['editdiscount']);
+    $editrate = 0;
+    $editdiscount = 0;
     $id = mysqli_real_escape_string($connection, trim(strip_tags($_POST['id'])));
 
     $updaterain = mysqli_query($connection, "UPDATE `farmer` SET 
@@ -171,9 +171,7 @@ if (isset($_POST['Edit'])) {
                                             <th class='text-center'>SrNo </th>
                                             <th class='text-center'>Name </th>
                                             <th class='text-center'>Address </th>                                            
-                                            <th class='text-center'>Mobile </th>
-                                            <th class='text-center'>Rate </th>
-                                            <th class='text-center'>Discount </th>
+                                            <th class='text-center'>Mobile </th>                                            
                                             <th class='text-center'>Details </th>
                                             <th class='text-center'>Pending </th>
                                             <th class='text-center'>Status </th>
@@ -188,9 +186,7 @@ if (isset($_POST['Edit'])) {
                                             <th class='text-center'>SrNo </th>
                                             <th class='text-center'>Name </th>
                                             <th class='text-center'>Address </th>                                            
-                                            <th class='text-center'>Mobile </th>
-                                            <th class='text-center'>Rate </th>
-                                            <th class='text-center'>Discount </th>
+                                            <th class='text-center'>Mobile </th>                                            
                                             <th class='text-center'>Details </th>
                                             <th class='text-center'>Pending </th>
                                             <th class='text-center'>Status </th>
@@ -237,17 +233,7 @@ if (isset($_POST['Edit'])) {
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Address</label>
                                 <textarea class="form-control" rows="3" placeholder="Address" name="address" ></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Rate</label>
-                                <input type="number" class="form-control" placeholder="Rate" id="rate" name="rate" required min="0" step="any">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Discount</label>
-                                <input type="number" class="form-control" placeholder="Discount" id="discount" name="discount" required min="0" step="any">
-                            </div>
+                            </div>                           
 
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Details</label>
@@ -258,8 +244,6 @@ if (isset($_POST['Edit'])) {
                                 <label for="exampleInputEmail1">Pending amount</label>
                                 <input type="number" class="form-control" placeholder="Pending amount" name="pending" id="pending" required pattern="[0-9]+" value="0">
                             </div>
-
-
                         </div>
                         <div class="modal-footer ">
                             <input type="hidden" name="Add" value="Add">
@@ -304,17 +288,7 @@ if (isset($_POST['Edit'])) {
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Address</label>
                                 <textarea class="form-control" rows="3" placeholder="Address" name="editaddress" id='editaddress' ></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Rate</label>
-                                <input type="number" class="form-control" placeholder="Rate" id="editrate" name="editrate" required min="0" step="any">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Discount</label>
-                                <input type="number" class="form-control" placeholder="Discount" id="editdiscount" name="editdiscount" required min="0" step="any">
-                            </div>
+                            </div>                            
 
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Details</label>
@@ -402,9 +376,7 @@ if (isset($_POST['Edit'])) {
                                 '<td class="text-center">' + srno + '</td>' +
                                 '<td class="text-center">' + value.name + '</td>' +
                                 '<td class="text-center">' + value.address + '</td>' +                                
-                                '<td class="text-center">' + value.mobile + '</td>' +
-                                '<td class="text-center">' + value.rate + '</td>' +
-                                '<td class="text-center">' + value.discount + '</td>' +
+                                '<td class="text-center">' + value.mobile + '</td>' +                                
                                 '<td class="text-center">' + value.details + '</td>' +
                                 '<td class="text-center">' + parseFloat(parseFloat(value.purchaseTotal) + parseFloat(value.pending) - parseFloat(value.sendTotal)).toLocaleString('en-IN') + "/-" + '</td>' +
                                 '<td class="text-center">' + value.status + '</td>' +
@@ -471,9 +443,7 @@ if (isset($_POST['Edit'])) {
                 $('#editalertclass').removeClass();
                 $('#editmsg').empty();
                 $(".modal-body #editname").attr("value", $(this).data('name'));                
-                $(".modal-body #editmobile").attr("value", $(this).data('mobile'));
-                $(".modal-body #editrate").attr("value", $(this).data('rate'));
-                $(".modal-body #editdiscount").attr("value", $(this).data('discount'));
+                $(".modal-body #editmobile").attr("value", $(this).data('mobile'));                
                 $(".modal-body #editdetails").val($(this).data('details'));
                 $(".modal-body #editaddress").val($(this).data('address'));
                 $("#editid").val($(this).data('editid'));

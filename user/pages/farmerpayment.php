@@ -150,6 +150,7 @@ if (isset($_POST['delete'])) {
                             <div class="box-header with-border">
                                 <h3 class="box-title">Farmer Payment Details </h3>
                                 <a class="btn btn-social-icon btn-success pull-right" title="Add Farmer Payment" data-toggle="modal" data-target="#modaladdrbill"><i class="fa fa-plus"></i></a>
+                                <a class="btn btn-social-icon btn-warning pull-right" title="Generate Print" data-toggle="modal" data-target="#modalworkbill" style="margin-right: 5px !important;"><i class="fa fa-file-excel-o"></i></a>
                             </div>
                             <div class="alert " id="alertclass" style="display: none">
                                 <button type="button" class="close" onclick="$('#alertclass').hide()">×</button>
@@ -217,7 +218,7 @@ if (isset($_POST['delete'])) {
 
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Farmer Name </label>
-                                <select class="form-control select2 " style="width: 100%;" required name="farmerid" id="farmerid">
+                                <select class="form-control select2 select3 " style="width: 100%;" required name="farmerid" id="farmerid">
                                 </select>
                             </div>
 
@@ -261,6 +262,52 @@ if (isset($_POST['delete'])) {
         </form>
         <!-- End Add Received bill modal -->
 
+         <!-- Add  payment bill modal -->
+         <form id="generatepurchasebill" action="farmerpaymentprint.php" method="get">
+            <div class="modal fade" id="modalworkbill" style="display: none;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-green">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span></button>
+                            <h4 class="modal-title">Generate Bill</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert " id="addalertclass" style="display: none">
+                                <button type="button" class="close" onclick="$('#addalertclass').hide()">×</button>
+                                <p id="addmsg"></p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Farmer Name </label>
+                                <select class="form-control select2 select3" style="width: 100%;" required name="farmerid" id="farmerid">
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Start Date</label>
+                                <input type="date" class="form-control" id="sdate" name="sdate" max=<?= date('Y-m-d') ?>>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">End Date</label>
+                                <input type="date" class="form-control" id="edate" name="edate" max=<?= date('Y-m-d') ?>>
+                            </div>
+                        </div>
+                        <div class="modal-footer ">
+                            <input type="hidden" name="Add" value="Add">
+                            <button type="submit" name="Add" value="Add" id='add' class="btn btn-success">Generate</button>
+                            <button type="button" class="btn pull-right btn-warning" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+
+            </div>
+        </form>
+        <!-- End Add sales bill modal -->
+
         <?php include("footer.php"); ?>
 
     </div>
@@ -301,7 +348,7 @@ if (isset($_POST['delete'])) {
 
             //display data table
             function tabledata() {
-                $('#farmerid').empty();
+                $('.select3').empty();
                 $('#example1').dataTable().fnDestroy();
                 $('#example1 tbody').empty();
 
@@ -338,9 +385,9 @@ if (isset($_POST['delete'])) {
                             $('#example1 tbody').append(html);
                         });
 
-                        $('#farmerid').append(new Option("Select farmer", ""));
+                        $('.select3').append(new Option("Select farmer", ""));
                         $.each(returnedData['farmerlist'], function(key, value) {
-                            $('#farmerid').append(new Option(value.name, value.id));
+                            $('.select3').append(new Option(value.name, value.id));
                         });
 
                         $('#example1').DataTable({
