@@ -5,14 +5,14 @@ ob_start();
 
 include("../../db.php");
 
-if (isset($_POST['vendorid'])) {
-    $id = $_POST['vendorid'];
+if (isset($_POST['vendoridbill'])) {
+    $id = $_POST['vendoridbill'];
     $sdate = $_POST['sdate'];
     $edate = $_POST['edate'];
     $data = new \stdClass();
 
     $data->sdate = date_format(date_create($_POST['sdate']), "d/m/Y");
-    $data->edate = date_format(date_create($_POST['edate']), "d/m/Y");   
+    $data->edate = date_format(date_create($_POST['edate']), "d/m/Y");
 
     $res = mysqli_query($connection, "SELECT p.*, DATE_FORMAT(p.date,'%d/%m/%Y') AS niceDate, v.name AS vendorname, v.mobile AS vendormobile,v.address FROM labour_vendor_work AS p
                                         LEFT JOIN labour_vendor AS v ON p.labourvendorid = v.id
@@ -30,12 +30,40 @@ if (isset($_POST['vendorid'])) {
 
         $res =  mysqli_query($connection, "SELECT IFNULL(pending,0) as pending FROM `labour_vendor` WHERE id = '$id' ");
         $data->pending = mysqli_fetch_row($res);
-
-
     } else {
         $data->status = "0";
         $data->data = "Bill Data Not Found.";
     }
+    echo json_encode($data);
+    exit();
+}
+
+if (isset($_POST['vendoridpayment'])) {
+    $id = $_POST['vendoridpayment'];
+    $sdate = $_POST['sdate'];
+    $edate = $_POST['edate'];
+    $data = new \stdClass();
+
+    $data->sdate = date_format(date_create($_POST['sdate']), "d/m/Y");
+    $data->edate = date_format(date_create($_POST['edate']), "d/m/Y");
+
+    $res = mysqli_query($connection, "SELECT p.*, DATE_FORMAT(p.date,'%d/%m/%Y') AS niceDate, 
+                                        v.name AS vendorname, v.mobile AS vendormobile,v.address FROM labour_vendor_payment AS p
+                                        LEFT JOIN labour_vendor AS v ON p.labourvendorid = v.id
+                                        WHERE p.labourvendorid = '$id' AND p.date <='$edate' AND p.date>='$sdate' AND p.status = 1
+                                        order by p.date asc");
+    if (mysqli_num_rows($res) > 0) {
+        $data->status = "1";
+        $data->list = mysqli_fetch_all($res, MYSQLI_ASSOC);
+    } else {
+        $data->status = "0";
+        $data->data = "Bill Data Not Found.";
+    }
+    $data->query = "SELECT p.*, DATE_FORMAT(p.date,'%d/%m/%Y') AS niceDate, 
+    v.name AS vendorname, v.mobile AS vendormobile,v.address FROM labour_vendor_payment AS p
+    LEFT JOIN labour_vendor AS v ON p.labourvendorid = v.id
+    WHERE p.labourvendorid = '$id' AND p.date <='$edate' AND p.date>='$sdate' AND p.status = 1
+    order by p.date asc";
     echo json_encode($data);
     exit();
 }
@@ -53,202 +81,18 @@ if (isset($_POST['vendorid'])) {
     <link rel="stylesheet" href="../../bower_components/font-awesome/css/font-awesome.min.css">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-
+    <link rel="stylesheet" href="../../assets/css/print.css">
 
 </head>
-
-
-<!------ Include the above in your HEAD tag ---------->
-<style>
-    #invoice {
-        padding: 30px;
-    }
-
-    #address {
-        font-size: 22px;
-    }
-
-    .invoice {
-        position: relative;
-        background-color: #FFF;
-        min-height: 680px;
-        padding: 15px
-    }
-
-    .invoice header {
-        padding: 10px 0;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #3989c6
-    }
-
-    .invoice .company-details {
-        text-align: right;
-        font-size: 1.4em;
-    }
-
-    .invoice .company-details .name {
-        margin-top: 0;
-        margin-bottom: 0;
-        font-size: 3.0rem
-    }
-
-    .invoice .contacts {
-        margin-bottom: 20px
-    }
-
-    .invoice .invoice-to {
-        text-align: left;
-        font-size: 1.5em;
-    }
-
-    .invoice .invoice-to .to {
-        margin-top: 0;
-        margin-bottom: 0
-    }
-
-    .invoice .invoice-details {
-        text-align: right;
-        font-size: 20px;
-
-    }
-
-    .invoice .invoice-details .invoice-id {
-        margin-top: 0;
-        color: #000000
-    }
-
-    .invoice main {
-        padding-bottom: 50px
-    }
-
-    .invoice main .thanks {
-        margin-top: -10px;
-        font-size: 2em;
-        margin-bottom: 50px
-    }
-
-    .invoice main .notices {
-        padding-left: 6px;
-        border-left: 6px solid #3989c6
-    }
-
-    .invoice main .notices .notice {
-        font-size: 1.2em
-    }
-
-    .invoice table {
-        width: 100%;
-        border-collapse: collapse;
-        border-spacing: 0;
-        margin-bottom: 20px
-    }
-
-    .invoice table td,
-    .invoice table th {
-        padding: 15px;
-        background: #eee;
-        border-bottom: 1px solid #fff
-    }
-
-    .invoice table th {
-        white-space: nowrap;
-        font-weight: 500;
-        font-size: 20px
-    }
-
-    .invoice table td h3 {
-        margin: 0;
-        font-weight: 400;
-        color: #000000;
-        font-size: 1.6em
-    }
-
-    .invoice table .qty,
-    .invoice table .total,
-    .invoice table .unit {
-        text-align: right;
-        font-size: 1.6em
-    }
-
-    .invoice table .no {
-        color: #000000;
-        font-size: 1.6em;
-
-    }
-
-    .invoice table .unit {
-        /* background: #ddd */
-    }
-
-    .invoice table .total {
-        /* background: #3989c6;
-        color: #fff */
-    }
-
-    .invoice table tbody tr:last-child td {
-        border: none
-    }
-
-    .invoice table tfoot td {
-        background: 0 0;
-        border-bottom: none;
-        white-space: nowrap;
-        text-align: right;
-        padding: 10px 20px;
-        font-size: 1.2em;
-        border-top: 1px solid #aaa
-    }
-
-    .invoice table tfoot tr:first-child td {
-        border-top: none
-    }
-
-    .invoice table tfoot tr:last-child td {
-        color: #000000;
-        font-size: 1.4em;
-        border-top: 1px solid #000000
-    }
-
-    .invoice table tfoot tr td:first-child {
-        border: none
-    }
-
-    .invoice footer {
-        width: 100%;
-        text-align: center;
-        color: #777;
-        border-top: 1px solid #aaa;
-        padding: 8px 0;
-        font-size: 20px;
-    }
-
-    @media print {
-        .invoice {
-            font-size: 11px !important;
-            overflow: hidden !important
-        }
-
-        .invoice footer {
-            position: absolute;
-            bottom: 10px;
-            page-break-after: always;
-
-        }
-
-        .invoice>div:last-child {
-            page-break-before: always
-        }
-    }
-</style>
 
 <body>
     <div id="invoice">
 
         <div class="toolbar hidden-print">
-            <!-- <div class="text-right">
+            <div class="text-right">
                 <button id="printInvoice" class="btn btn-info"><i class="fa fa-print"></i> Print</button>
                 <button class="btn btn-info"><i class="fa fa-file-pdf-o"></i> Export as PDF</button>
-            </div> -->
+            </div>
             <hr>
         </div>
         <div class="invoice overflow-auto">
@@ -279,15 +123,15 @@ if (isset($_POST['vendorid'])) {
                         <div class="col invoice-to">
                             <div class="text-gray-light">Bill FROM:</div>
                             <h2 class="to" id="to"></h2>
-                            <div id="mobile"></div>
+                            <div id="mobile" class="mobile"></div>
                             <div class="address" id="address"></div>
-                            <div id="email"></div>
+                            <div id="email" class="email"></div>
 
                         </div>
                         <div class="col invoice-details">
-                            <h3 class="invoice-id" id="invoice-id">Bill Details : </h3>
-                            <div class="date" id="sdate">Start Date : </div>
-                            <div class="date" id="edate">End Date: </div>
+                            <h3 class="invoice-id" id="invoice-id">Labour Contractor Bill Details : </h3>
+                            <div class="date sdate" id="sdate">Start Date : </div>
+                            <div class="date edate" id="edate">End Date: </div>
                         </div>
                     </div>
                     <table border="0" cellspacing="0" cellpadding="0">
@@ -295,13 +139,13 @@ if (isset($_POST['vendorid'])) {
 
                             <tr>
                                 <th class="text-center">Sr.no. </th>
-                                <th class="text-center">Date</th>                                
+                                <th class="text-center">Date</th>
                                 <th class="text-center">Gents/Charges</th>
                                 <th class="text-center">Ladies/Charges</th>
                                 <th class="text-center">Vehicle</th>
                                 <th class="text-center">Charges</th>
                                 <th class="text-center">Location</th>
-                                <th class="text-center">Amount</th>                                
+                                <th class="text-center">Amount</th>
                             </tr>
                         </thead>
                         <tbody id="salesdetails">
@@ -315,38 +159,86 @@ if (isset($_POST['vendorid'])) {
                                 <td colspan="2"></td>
                                 <td></td>
                             </tr>
+                        </tfoot>
+                    </table>
+                </main>
+                <footer>
+                    Invoice was created on a computer and is valid without the signature and seal.
+                </footer>
+            </div>
+            <!--DO NOT DELETE THIS div. IT is responsible for showing footer always at the bottom-->
+            <div></div>
+        </div>
+    </div>
+
+    <div id="invoice">
+
+        <div class="toolbar hidden-print">
+            <hr>
+        </div>
+        <div class="invoice overflow-auto">
+            <div style="min-width: 600px">
+                <header>
+                    <div class="row">
+                        <div class="col">
+                            <a href="index.php">
+                                <img src="../../dist/img/small.png" data-holder-rendered="true" width="170" height="170" />
+                            </a>
+                        </div>
+                        <div class="col company-details">
+                            <h2 class="name">
+                                <a target="_blank" href="" style="color:black !important">
+                                    NFC Fruits
+                                </a>
+                                </h1>
+                                <div class="address">Jath-Athani main road, </div>
+                                <div class="address">A/P - Billur, Tal - Jath,</div>
+                                <div> Dist - Sangli 416-404</div>
+                                <div>Mobile : 91586-47228</div>
+                                <!-- <div>adnanenterprises@gmail.com</div> -->
+                        </div>
+                    </div>
+                </header>
+                <main>
+                    <div class="row contacts">
+                        <div class="col invoice-to">
+                            <div class="text-gray-light">Payment To:</div>
+                            <h2 class="to" id="to"></h2>
+                            <div id="mobile" class="mobile"></div>
+                            <div class="address" id="address"></div>
+                            <div id="email" class="email"></div>
+
+                        </div>
+                        <div class="col invoice-details">
+                            <h3 class="invoice-id" id="invoice-id">Labour Contarctor Payment Details : </h3>
+                            <div class="date sdate" id="sdate">Start Date : </div>
+                            <div class="date edate" id="edate">End Date: </div>
+                        </div>
+                    </div>
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <thead>
+
                             <tr>
-                                <!-- <td colspan="2" rowspan="4" style="text-align: left !important; font-size:20px; border-style: dotted; border-width: 0.8px;">
-                                    <div>Bank Details:</div>
-                                    <div>Account Holder: Alimurtuja Nijam Umarani</div>
-                                    <div> Name: ICICI Bank, Billur</div>
-                                    <div>A/c No: 637805004166 </div>
-                                    <div>Ifsc code: ICIC0006378</div>
-                                </td> 
-                                <td colspan="4">Sub Total</td>
-                                <td id="subtotal"><i class="fa fa-inr"></i></td>-->
+                                <th class="text-center">Sr.no. </th>
+                                <th class="text-center">Date</th>
+                                <th class="text-center">Amount</th>
+                                <th class="text-center">Mode</th>
+                                <th class="text-center">Details</th>
                             </tr>
+                        </thead>
+                        <tbody id="paymentdetails">
                             <tr>
-                                <!-- <td colspan="2" >
-                                    
-                                </td> 
-                                <td colspan="4">Pending </td>
-                                <td id="pending"><i class="fa fa-inr"></i></td>-->
+
                             </tr>
+                        </tbody>
+                        <tfoot>
                             <tr>
-                                <!-- <td colspan="2"></td> 
-                                <td colspan="4">Grand Total</td>
-                                <td id="grandtotal"><i class="fa fa-inr"></i></td>-->
+                                <td colspan="2" style="padding-top:90px  !important; "></td>
+                                <td colspan="2"></td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>
-
-                    <!-- <div class="thanks">Thank you for your business!</div>
-                    <div class="notices">
-                        <div>NOTICE:</div>
-                        <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
-                        <div class="notice">A cheque bounce charges should be paid by custmer only.</div>
-                    </div> -->
                 </main>
                 <footer>
                     Invoice was created on a computer and is valid without the signature and seal.
@@ -377,7 +269,7 @@ if (isset($_POST['vendorid'])) {
             });
 
             //display data table
-            function tabledata() {
+            function tabledatabill() {
                 var vars = [],
                     hash;
                 var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
@@ -391,7 +283,7 @@ if (isset($_POST['vendorid'])) {
                     url: $(location).attr('href'),
                     type: 'POST',
                     data: {
-                        'vendorid': vars["vendorid"],
+                        'vendoridbill': vars["vendorid"],
                         'sdate': vars["sdate"],
                         'edate': vars["edate"]
                     },
@@ -404,22 +296,22 @@ if (isset($_POST['vendorid'])) {
 
                         } else {
                             document.title = returnedData['list'][0]['vendorname'] + '_' + vars["sdate"] + " - " + vars["edate"];
-                            $("#to").append(returnedData['list'][0]['vendorname']);
-                            $("#address").append(returnedData['list'][0]['address']);
-                            $("#email").append(returnedData['list'][0]['email']);
-                            $("#mobile").append("Mobile : " + returnedData['list'][0]['vendormobile']);
+                            $(".to").append(returnedData['list'][0]['vendorname']);
+                            $(".address").append(returnedData['list'][0]['address']);
+                            $(".email").append(returnedData['list'][0]['email']);
+                            $(".mobile").append("Mobile : " + returnedData['list'][0]['vendormobile']);
 
-                            $("#sdate").append(returnedData["sdate"]);
-                            $("#edate").append(returnedData["edate"]);
+                            $(".sdate").append(returnedData["sdate"]);
+                            $(".edate").append(returnedData["edate"]);
 
                             var srno = 0;
                             var gentsTotal = 0;
-                            var ladiesTotal = 0;                            
-                            var total = 0;                           
+                            var ladiesTotal = 0;
+                            var total = 0;
 
 
                             $.each(returnedData['list'], function(key, value) {
-                                srno++;                                
+                                srno++;
 
                                 // gentsTotal = parseFloat(gentsTotal) + parseFloat(value.gents);
                                 // ladiesTotal = parseFloat(ladiesTotal) + parseFloat(value.ladies);                                
@@ -429,7 +321,7 @@ if (isset($_POST['vendorid'])) {
                                     '<td class="text-center">' + srno + '</td>' +
                                     '<td class="text-center">' + value.niceDate + '</td>' +
                                     '<td class="text-center">' + value.gents + ' / ' + value.gentscharges + '</td>' +
-                                    '<td class="text-center">' + value.ladies + ' / ' + value.ladiescharges + '</td>' +                                    
+                                    '<td class="text-center">' + value.ladies + ' / ' + value.ladiescharges + '</td>' +
                                     '<td class="text-center">' + value.vehicle + '</td>' +
                                     '<td class="text-center">' + value.vehiclecharges + '</td>' +
                                     '<td class="text-center">' + value.location + '</td>' +
@@ -439,23 +331,75 @@ if (isset($_POST['vendorid'])) {
                             });
 
                             var html = '<tr class="odd gradeX">' +
-                                '<td class="text-right" colspan="7"> <b>Total Amount</b>  </td>' +                                
-                                '<td class="text-center">' + total.toLocaleString('en-IN') + '/-</td>' +                                
+                                '<td class="text-right" colspan="7"> <b>Total Amount</b>  </td>' +
+                                '<td class="text-center">' + total.toLocaleString('en-IN') + '/-</td>' +
                                 '</tr>';
                             $('#salesdetails').append(html);
-
-                           
-                            // var total1 = parseFloat(caretTotal) + parseFloat(box5kgTotal) + parseFloat(paperTotal) + parseFloat(tapeTotal) + parseFloat(tawimTotal) + parseFloat(brboxTotal) + parseFloat(whiterimTotal)+ parseFloat(pinkrimTotal);
-                            // var pending = parseFloat(returnedData['totalPurchase'][0]) + parseFloat(returnedData['pending'][0]) - parseFloat(returnedData['totalSend'][0]);
-                            // $("#subtotal").append(parseFloat(total1).toLocaleString('en-IN') + "/-");
-                            // $("#pending").append(parseFloat(pending).toLocaleString('en-IN') + "/-");
-                            // $("#grandtotal").append(parseFloat(parseFloat(total1) + parseFloat(pending)).toLocaleString('en-IN') + "/- ");
                         }
                     }
                 });
             }
 
-            tabledata();
+            tabledatabill();
+
+            function tabledatapayment() {
+                var vars = [],
+                    hash;
+                var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                for (var i = 0; i < hashes.length; i++) {
+                    hash = hashes[i].split('=');
+                    vars.push(hash[0]);
+                    vars[hash[0]] = hash[1];
+                }
+
+                $.ajax({
+                    url: $(location).attr('href'),
+                    type: 'POST',
+                    data: {
+                        'vendoridpayment': vars["vendorid"],
+                        'sdate': vars["sdate"],
+                        'edate': vars["edate"]
+                    },
+                    success: function(response) {
+                        // console.log(response);
+                        var returnedData = JSON.parse(response);
+                        console.log(returnedData);
+                        var srno = 0;
+                        if (returnedData['status'] == 0) {
+
+                        } else {
+                            document.title = returnedData['list'][0]['vendorname'] + '_' + vars["sdate"] + " - " + vars["edate"];
+
+                            var srno = 0;
+                            var total = 0;
+
+
+                            $.each(returnedData['list'], function(key, value) {
+                                srno++;
+                                total = parseFloat(total) + parseFloat(value.amount);
+
+                                var html = '<tr class="odd gradeX">' +
+                                    '<td class="text-center">' + srno + '</td>' +
+                                    '<td class="text-center">' + value.niceDate + '</td>' +
+                                    '<td class="text-center">' + value.amount.toLocaleString('en-IN') + '/-</td>' +
+                                    '<td class="text-center">' + value.mode + '</td>' +
+                                    '<td class="text-center">' + value.details + '</td>' +
+                                    '</tr>';
+                                $('#paymentdetails').append(html);
+                            });
+
+                            var html = '<tr class="odd gradeX">' +
+                                '<td class="text-right" colspan="2"> <b>Total Amount</b>  </td>' +
+
+                                '<td class="text-center">' + total.toLocaleString('en-IN') + '/-</td>' +
+                                '<td class="text-right" colspan="2"> </td>' +
+                                '</tr>';
+                            $('#paymentdetails').append(html);
+                        }
+                    }
+                });
+            }
+            tabledatapayment();
 
             const wordify = (num) => {
                 const single = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];

@@ -4,9 +4,45 @@ session_start();
 ob_start();
 
 include("../../db.php");
+//Farmer Purchase
+if (isset($_POST['farmeridpurchase'])) {
+    $id = $_POST['farmeridpurchase'];
+    $sdate = $_POST['sdate'];
+    $edate = $_POST['edate'];
+    $data = new \stdClass();
 
-if (isset($_POST['farmerid'])) {
-    $id = $_POST['farmerid'];
+    $data->sdate = date_format(date_create($_POST['sdate']), "d/m/Y");
+    $data->edate = date_format(date_create($_POST['edate']), "d/m/Y");
+
+    $res = mysqli_query($connection, "SELECT p.*,DATE_FORMAT(p.date,'%d/%m/%Y') AS niceDate, 
+                                        f.name as farmername, f.mobile as farmermobile from farmer_purchase as p
+                                        LEFT join farmer as f ON p.farmerid = f.id
+                                        WHERE p.farmerid = '$id' AND p.date <='$edate' AND p.date>='$sdate' AND p.status = 1
+                                        order by p.date asc
+                                        ");
+    if (mysqli_num_rows($res) > 0) {
+        $data->status = "1";
+        $data->list = mysqli_fetch_all($res, MYSQLI_ASSOC);
+
+        $res =  mysqli_query($connection, "SELECT IFNULL(SUM(amount),0) as totalSend FROM `farmer_payment` WHERE status = 1 AND farmerid = '$id' ");
+        $data->totalSend = mysqli_fetch_row($res);
+
+        $res =  mysqli_query($connection, "SELECT IFNULL(SUM(totalamount),0) as totalPurchase FROM `farmer_purchase` WHERE status = 1 AND farmerid = '$id' AND date < '$sdate'");
+        $data->totalPurchase = mysqli_fetch_row($res);
+
+        $res =  mysqli_query($connection, "SELECT IFNULL(pending,0) as pending FROM `farmer` WHERE id = '$id' ");
+        $data->pending = mysqli_fetch_row($res);
+    } else {
+        $data->status = "0";
+        $data->data = "Bill Data Not Found.";
+    }
+    echo json_encode($data);
+    exit();
+}
+
+//Farmer Payment
+if (isset($_POST['farmeridpayment'])) {
+    $id = $_POST['farmeridpayment'];
     $sdate = $_POST['sdate'];
     $edate = $_POST['edate'];
     $data = new \stdClass();
@@ -37,202 +73,106 @@ if (isset($_POST['farmerid'])) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?= $project ?> : Farmer Payment Details </title>
+    <title><?= $project ?> : Farmer Purchase Bill </title>
 
     <!-- Font Awesome -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="../../bower_components/font-awesome/css/font-awesome.min.css">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-
+    <link rel="stylesheet" href="../../assets/css/print.css">
 
 </head>
-
-
-<!------ Include the above in your HEAD tag ---------->
-<style>
-    #invoice {
-        padding: 30px;
-    }
-
-    #address {
-        font-size: 22px;
-    }
-
-    .invoice {
-        position: relative;
-        background-color: #FFF;
-        min-height: 680px;
-        padding: 15px
-    }
-
-    .invoice header {
-        padding: 10px 0;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #3989c6
-    }
-
-    .invoice .company-details {
-        text-align: right;
-        font-size: 1.4em;
-    }
-
-    .invoice .company-details .name {
-        margin-top: 0;
-        margin-bottom: 0;
-        font-size: 3.0rem
-    }
-
-    .invoice .contacts {
-        margin-bottom: 20px
-    }
-
-    .invoice .invoice-to {
-        text-align: left;
-        font-size: 1.5em;
-    }
-
-    .invoice .invoice-to .to {
-        margin-top: 0;
-        margin-bottom: 0
-    }
-
-    .invoice .invoice-details {
-        text-align: right;
-        font-size: 20px;
-
-    }
-
-    .invoice .invoice-details .invoice-id {
-        margin-top: 0;
-        color: #000000
-    }
-
-    .invoice main {
-        padding-bottom: 50px
-    }
-
-    .invoice main .thanks {
-        margin-top: -10px;
-        font-size: 2em;
-        margin-bottom: 50px
-    }
-
-    .invoice main .notices {
-        padding-left: 6px;
-        border-left: 6px solid #3989c6
-    }
-
-    .invoice main .notices .notice {
-        font-size: 1.2em
-    }
-
-    .invoice table {
-        width: 100%;
-        border-collapse: collapse;
-        border-spacing: 0;
-        margin-bottom: 20px
-    }
-
-    .invoice table td,
-    .invoice table th {
-        padding: 15px;
-        background: #eee;
-        border-bottom: 1px solid #fff
-    }
-
-    .invoice table th {
-        white-space: nowrap;
-        font-weight: 500;
-        font-size: 20px
-    }
-
-    .invoice table td h3 {
-        margin: 0;
-        font-weight: 400;
-        color: #000000;
-        font-size: 1.6em
-    }
-
-    .invoice table .qty,
-    .invoice table .total,
-    .invoice table .unit {
-        text-align: right;
-        font-size: 1.6em
-    }
-
-    .invoice table .no {
-        color: #000000;
-        font-size: 1.6em;
-
-    }
-
-    .invoice table .unit {
-        /* background: #ddd */
-    }
-
-    .invoice table .total {
-        /* background: #3989c6;
-        color: #fff */
-    }
-
-    .invoice table tbody tr:last-child td {
-        border: none
-    }
-
-    .invoice table tfoot td {
-        background: 0 0;
-        border-bottom: none;
-        white-space: nowrap;
-        text-align: right;
-        padding: 10px 20px;
-        font-size: 1.2em;
-        border-top: 1px solid #aaa
-    }
-
-    .invoice table tfoot tr:first-child td {
-        border-top: none
-    }
-
-    .invoice table tfoot tr:last-child td {
-        color: #000000;
-        font-size: 1.4em;
-        border-top: 1px solid #000000
-    }
-
-    .invoice table tfoot tr td:first-child {
-        border: none
-    }
-
-    .invoice footer {
-        width: 100%;
-        text-align: center;
-        color: #777;
-        border-top: 1px solid #aaa;
-        padding: 8px 0;
-        font-size: 20px;
-    }
-
-    @media print {
-        .invoice {
-            font-size: 11px !important;
-            overflow: hidden !important
-        }
-
-        .invoice footer {
-            position: absolute;
-            bottom: 10px;
-            page-break-after: always;
-
-        }
-
-        .invoice>div:last-child {
-            page-break-before: always
-        }
-    }
-</style>
-
 <body>
+    <!-- Farmer purcahse -->
+    <div id="invoice">
+
+        <div class="toolbar hidden-print">
+            <div class="text-right">
+                <button id="printInvoice" class="btn btn-info"><i class="fa fa-print"></i> Print</button>
+                <button class="btn btn-info"><i class="fa fa-file-pdf-o"></i> Export as PDF</button>
+            </div>
+            <hr>
+        </div>
+        <div class="invoice overflow-auto">
+            <div style="min-width: 600px">
+                <header>
+                    <div class="row">
+                        <div class="col">
+                            <a href="index.php">
+                                <img src="../../dist/img/small.png" data-holder-rendered="true" width="170" height="170" />
+                            </a>
+                        </div>
+                        <div class="col company-details">
+                            <h2 class="name">
+                                <a target="_blank" href="" style="color:black !important">
+                                    NFC Fruits
+                                </a>
+                                </h1>
+                                <div class="address">Jath-Athani main road, </div>
+                                <div class="address">A/P - Billur, Tal - Jath,</div>
+                                <div> Dist - Sangli 416-404</div>
+                                <div>Mobile : 91586-47228</div>
+                                <!-- <div>adnanenterprises@gmail.com</div> -->
+                        </div>
+                    </div>
+                </header>
+                <main>
+                    <div class="row contacts">
+                        <div class="col invoice-to">
+                            <div class="text-gray-light">Farmer Purchase:</div>
+                            <h2 class="to" id="to"></h2>
+                            <div id="mobile" class="mobile"></div>
+                            <div class="address" id="address"></div>
+                            <div id="email" class="email"></div>
+
+                        </div>
+                        <div class="col invoice-details">
+                            <h3 class="invoice-id" id="invoice-id">Farmer Purchase Details : </h3>
+                            <div class="date sdate" id="sdate">Start Date : </div>
+                            <div class="date edate" id="edate">End Date: </div>
+                        </div>
+                    </div>
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <thead>
+
+                            <tr>
+                                <th class="text-center">Sr.no. </th>
+                                <th class="text-center">Date</th>
+                                <th class='text-center'>Caret </th>
+                                <th class='text-center'>Weight / Caret </th>
+                                <th class='text-center'>Total Weight </th>
+                                <th class='text-center'>Discount / 1000Kg </th>
+                                <th class='text-center'>Actual Weight </th>
+                                <th class='text-center'>Rate / 4kg </th>
+                                <th class='text-center'>Total amount </th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesdetails">
+                            <tr>
+
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" style="padding-top:90px  !important; "></td>
+                                <td colspan="2"></td>
+                                <td></td>
+                            </tr>
+
+                        </tfoot>
+                    </table>
+                </main>
+                <footer>
+                    Invoice was created on a computer and is valid without the signature and seal.
+                </footer>
+            </div>
+            <!--DO NOT DELETE THIS div. IT is responsible for showing footer always at the bottom-->
+            <div></div>
+        </div>
+    </div>
+
+    <!-- Farmer Payment -->
     <div id="invoice">
 
         <div class="toolbar hidden-print">
@@ -270,15 +210,15 @@ if (isset($_POST['farmerid'])) {
                         <div class="col invoice-to">
                             <div class="text-gray-light">Payment To Farmer:</div>
                             <h2 class="to" id="to"></h2>
-                            <div id="mobile"></div>
+                            <div id="mobile" class="mobile"></div>
                             <div class="address" id="address"></div>
                             <div id="email"></div>
 
                         </div>
                         <div class="col invoice-details">
-                            <h3 class="invoice-id" id="invoice-id">Bill Details : </h3>
-                            <div class="date" id="sdate">Start Date : </div>
-                            <div class="date" id="edate">End Date: </div>
+                            <h3 class="invoice-id" id="invoice-id">Payment To Farmer Details : </h3>
+                            <div class="date sdate" id="sdate">Start Date : </div>
+                            <div class="date edate" id="edate">End Date: </div>
                         </div>
                     </div>
                     <table border="0" cellspacing="0" cellpadding="0">
@@ -292,7 +232,7 @@ if (isset($_POST['farmerid'])) {
                                 <th class="text-center">Details</th>                                
                             </tr>
                         </thead>
-                        <tbody id="salesdetails">
+                        <tbody id="paymentdetails">
                             <tr>
 
                             </tr>
@@ -302,39 +242,9 @@ if (isset($_POST['farmerid'])) {
                                 <td colspan="2" style="padding-top:90px  !important; "></td>
                                 <td colspan="2"></td>
                                 <td></td>
-                            </tr>
-                            <tr>
-                                <!-- <td colspan="2" rowspan="4" style="text-align: left !important; font-size:20px; border-style: dotted; border-width: 0.8px;">
-                                    <div>Bank Details:</div>
-                                    <div>Account Holder: Alimurtuja Nijam Umarani</div>
-                                    <div> Name: ICICI Bank, Billur</div>
-                                    <div>A/c No: 637805004166 </div>
-                                    <div>Ifsc code: ICIC0006378</div>
-                                </td> 
-                                <td colspan="4">Sub Total</td>
-                                <td id="subtotal"><i class="fa fa-inr"></i></td>-->
-                            </tr>
-                            <tr>
-                                <!-- <td colspan="2" >
-                                    
-                                </td> 
-                                <td colspan="4">Pending </td>
-                                <td id="pending"><i class="fa fa-inr"></i></td>-->
-                            </tr>
-                            <tr>
-                                <!-- <td colspan="2"></td> 
-                                <td colspan="4">Grand Total</td>
-                                <td id="grandtotal"><i class="fa fa-inr"></i></td>-->
-                            </tr>
+                            </tr>                           
                         </tfoot>
-                    </table>
-
-                    <!-- <div class="thanks">Thank you for your business!</div>
-                    <div class="notices">
-                        <div>NOTICE:</div>
-                        <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
-                        <div class="notice">A cheque bounce charges should be paid by custmer only.</div>
-                    </div> -->
+                    </table>                    
                 </main>
                 <footer>
                     Invoice was created on a computer and is valid without the signature and seal.
@@ -344,14 +254,8 @@ if (isset($_POST['farmerid'])) {
             <div></div>
         </div>
     </div>
-    <!-- jQuery 3 -->
-    <!-- <script src="../../bower_components/jquery/dist/jquery.min.js"></script> -->
-    <!-- Bootstrap 3.3.7 -->
-    <!-- <script src="../../bower_components/bootstrap/dist/js/bootstrap.min.js"></script> -->
-    <!-- SlimScroll -->
-    <!-- <script src="../../bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script> -->
-    <!-- FastClick -->
-    <!-- <script src="../../bower_components/fastclick/lib/fastclick.js"></script> -->
+
+
 
     <script>
         $(document).ready(function() {
@@ -364,8 +268,8 @@ if (isset($_POST['farmerid'])) {
                 }
             });
 
-            //display data table
-            function tabledata() {
+            //display farmer purchase data table
+            function tabledatapurchase() {
                 var vars = [],
                     hash;
                 var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
@@ -379,7 +283,86 @@ if (isset($_POST['farmerid'])) {
                     url: $(location).attr('href'),
                     type: 'POST',
                     data: {
-                        'farmerid': vars["farmerid"],
+                        'farmeridpurchase': vars["farmerid"],
+                        'sdate': vars["sdate"],
+                        'edate': vars["edate"]
+                    },
+                    success: function(response) {
+                        // console.log(response);
+                        var returnedData = JSON.parse(response);
+                        console.log(returnedData);
+                        var srno = 0;
+                        if (returnedData['status'] == 0) {
+
+                        } else {
+                            document.title = "Farmer purchase bill " + returnedData['list'][0]['farmername'] + '_' + vars["sdate"] + " - " + vars["edate"];
+                            $(".to").append(returnedData['list'][0]['farmername']);
+                            // $(".address").append(returnedData['list'][0]['address']);
+                            // $(".email").append(returnedData['list'][0]['email']);
+                            $(".mobile").append("Mobile : " + returnedData['list'][0]['farmermobile']);
+
+                            $(".sdate").append(returnedData["sdate"]);
+                            $(".edate").append(returnedData["edate"]);
+
+                            var srno = 0;
+                            var gentsTotal = 0;
+                            var ladiesTotal = 0;
+                            var total = 0;
+
+
+                            $.each(returnedData['list'], function(key, value) {
+                                srno++;
+
+                                total = parseFloat(total) + parseFloat(value.totalamount);
+
+                                var html = '<tr class="odd gradeX">' +
+                                    '<td class="text-center">' + srno + '</td>' +
+                                    '<td class="text-center">' + value.niceDate + '</td>' +
+                                    '<td class="text-center">' + value.carate.toLocaleString('en-IN') + '</td>' +
+                                    '<td class="text-center">' + value.weight + '</td>' +
+                                    '<td class="text-center">' + value.totalweight.toLocaleString('en-IN') + '</td>' +
+                                    '<td class="text-center">' + value.discount + '</td>' +
+                                    '<td class="text-center">' + value.actualweight.toLocaleString('en-IN') + '</td>' +
+                                    '<td class="text-center">' + value.rate + '/-</td>' +
+                                    '<td class="text-center">' + value.totalamount.toLocaleString('en-IN') + '/-</td>' +
+                                    '</tr>';
+                                $('#salesdetails').append(html);
+                            });
+
+                            var html = '<tr class="odd gradeX">' +
+                                '<td class="text-right" colspan="8"> <b>Total Quantity</b>  </td>' +
+                                '<td class="text-center">' + total.toLocaleString('en-IN') + '/-</td>' +
+                                '</tr>';
+                            $('#salesdetails').append(html);
+
+                            // var total1 = parseFloat(caretTotal) + parseFloat(box5kgTotal) + parseFloat(paperTotal) + parseFloat(tapeTotal) + parseFloat(tawimTotal) + parseFloat(brboxTotal) + parseFloat(whiterimTotal)+ parseFloat(pinkrimTotal);
+                            // var pending = parseFloat(returnedData['totalPurchase'][0]) + parseFloat(returnedData['pending'][0]) - parseFloat(returnedData['totalSend'][0]);
+                            // $("#subtotal").append(parseFloat(total1).toLocaleString('en-IN') + "/-");
+                            // $("#pending").append(parseFloat(pending).toLocaleString('en-IN') + "/-");
+                            // $("#grandtotal").append(parseFloat(parseFloat(total1) + parseFloat(pending)).toLocaleString('en-IN') + "/- ");
+                        }
+                    }
+                });
+            }
+
+            tabledatapurchase();
+
+            //display farmer payment data table
+            function tabledatapayment() {
+                var vars = [],
+                    hash;
+                var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                for (var i = 0; i < hashes.length; i++) {
+                    hash = hashes[i].split('=');
+                    vars.push(hash[0]);
+                    vars[hash[0]] = hash[1];
+                }
+
+                $.ajax({
+                    url: $(location).attr('href'),
+                    type: 'POST',
+                    data: {
+                        'farmeridpayment': vars["farmerid"],
                         'sdate': vars["sdate"],
                         'edate': vars["edate"]
                     },
@@ -392,13 +375,13 @@ if (isset($_POST['farmerid'])) {
 
                         } else {
                             document.title = "Farmer Payment Details "+ returnedData['list'][0]['farmername'] + '_' + vars["sdate"] + " - " + vars["edate"];
-                            $("#to").append(returnedData['list'][0]['farmername']);
-                            $("#address").append(returnedData['list'][0]['address']);
-                            $("#email").append(returnedData['list'][0]['email']);
-                            $("#mobile").append("Mobile : " + returnedData['list'][0]['farmermobile']);
+                            // $(".to").append(returnedData['list'][0]['farmername']);
+                            // $(".address").append(returnedData['list'][0]['address']);
+                            // $(".email").append(returnedData['list'][0]['email']);
+                            // $(".mobile").append("Mobile : " + returnedData['list'][0]['farmermobile']);
 
-                            $("#sdate").append(returnedData["sdate"]);
-                            $("#edate").append(returnedData["edate"]);
+                            // $(".sdate").append(returnedData["sdate"]);
+                            // $(".edate").append(returnedData["edate"]);
 
                             var srno = 0;                                                      
                             var total = 0;                           
@@ -415,7 +398,7 @@ if (isset($_POST['farmerid'])) {
                                     '<td class="text-center">' + value.mode + '</td>' +                                    
                                     '<td class="text-center">' + value.details + '</td>' +                                    
                                     '</tr>';
-                                $('#salesdetails').append(html);
+                                $('#paymentdetails').append(html);
                             });
 
                             var html = '<tr class="odd gradeX">' +
@@ -424,7 +407,7 @@ if (isset($_POST['farmerid'])) {
                                 '<td class="text-center">' + total.toLocaleString('en-IN') + '/-</td>' +  
                                 '<td class="text-right" colspan="2"> </td>' +                               
                                 '</tr>';
-                            $('#salesdetails').append(html);
+                            $('#paymentdetails').append(html);
 
                            
                             // var total1 = parseFloat(caretTotal) + parseFloat(box5kgTotal) + parseFloat(paperTotal) + parseFloat(tapeTotal) + parseFloat(tawimTotal) + parseFloat(brboxTotal) + parseFloat(whiterimTotal)+ parseFloat(pinkrimTotal);
@@ -437,7 +420,7 @@ if (isset($_POST['farmerid'])) {
                 });
             }
 
-            tabledata();
+            tabledatapayment();
 
             const wordify = (num) => {
                 const single = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
