@@ -29,7 +29,7 @@ if (isset($_POST['tabledata'])) {
 if (isset($_POST['Add'])) {
 
     $msg = new \stdClass();
-    $farmerid = mysqli_real_escape_string($connection, $_POST['farmerid']);
+    $farmerid = mysqli_real_escape_string($connection, $_POST['farmer']);
     $date = mysqli_real_escape_string($connection, $_POST['date']);
 
     $caret = mysqli_real_escape_string($connection, $_POST['caretquantity']);
@@ -235,7 +235,7 @@ if (isset($_POST['delete'])) {
 
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Farmer Name </label>
-                                <select class="form-control select2 " style="width: 100%;" required name="farmerid" id="farmerid">
+                                <select class="form-control select2 " style="width: 100%;" required name="farmer" id="farmer">
                                 </select>
                             </div>
 
