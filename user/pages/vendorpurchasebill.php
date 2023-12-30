@@ -137,12 +137,12 @@ if (isset($_POST['vendoridpayment'])) {
                             <tr>
                                 <th class="text-center">Sr.no. </th>
                                 <th class="text-center">Date</th>
-                                <th class="text-center">Caret</th>
-                                <th class="text-center">Rope</th>
-                                <th class="text-center">Paper</th>
-                                <th class="text-center">Tape</th>
-                                <th class="text-center">Box</th>
-                                <th class="text-center">Cooling Box</th>
+                                <th class="text-center">Caret/Rate</th>
+                                <th class="text-center">Rope/Rate</th>
+                                <th class="text-center">Paper/Rate</th>
+                                <th class="text-center">Tape/Rate</th>
+                                <th class="text-center">Box/Rate</th>
+                                <th class="text-center">Cooling Box/Rate</th>
                             </tr>
                         </thead>
                         <tbody id="salesdetails">
@@ -355,12 +355,12 @@ if (isset($_POST['vendoridpayment'])) {
                                 var html = '<tr class="odd gradeX">' +
                                     '<td class="text-center">' + srno + '</td>' +
                                     '<td class="text-center">' + value.niceDate + '</td>' +
-                                    '<td class="text-center">' + value.caret_quantity + '</td>' +
-                                    '<td class="text-center">' + value.rope_quantity + '</td>' +
-                                    '<td class="text-center">' + value.paper_quantity + '</td>' +
-                                    '<td class="text-center">' + value.tape_quantity + '</td>' +
-                                    '<td class="text-center">' + value.box_quantity + '</td>' +
-                                    '<td class="text-center">' + value.collingbox_quantity + '</td>' +
+                                    '<td class="text-center">' + value.caret_quantity + ' / '+ value.caret_rate + '</td>' +
+                                    '<td class="text-center">' + value.rope_quantity + ' / '+ value.rope_rate + '</td>' +
+                                    '<td class="text-center">' + value.paper_quantity + ' / '+ value.paper_rate + '</td>' +
+                                    '<td class="text-center">' + value.tape_quantity + ' / '+ value.tape_rate + '</td>' +
+                                    '<td class="text-center">' + value.box_quantity + ' / '+ value.box_rate + '</td>' +
+                                    '<td class="text-center">' + value.collingbox_quantity + ' / '+ value.collingbox_rate + '</td>' +
 
                                     '</tr>';
                                 $('#salesdetails').append(html);
