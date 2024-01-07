@@ -134,7 +134,7 @@ if (isset($_POST['data'])) {
               <a href="farmer.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
-          <!-- ./col -->          
+          <!-- ./col -->
           <!-- ./col -->
           <div class="col-lg-3 col-xs-6">
             <!-- small box -->
@@ -229,7 +229,7 @@ if (isset($_POST['data'])) {
               <a href="vendors.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
-          <!-- ./col -->          
+          <!-- ./col -->
           <!-- ./col -->
           <div class="col-lg-3 col-xs-6">
             <!-- small box -->
@@ -258,6 +258,47 @@ if (isset($_POST['data'])) {
                 <i class="fa fa-inr"></i>
               </div>
               <a href="vendorpayment.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="content">
+        <div class="row">
+          <!-- left column -->
+          <div class="col-md-6">
+            <!-- general form elements -->
+            <div class="box box-primary">
+              <div class="box-header with-border">
+                <h3 class="box-title">Generate Report</h3>
+              </div>
+              <div class="alert " id="alertclass" style="display: none">
+                <button type="button" class="close" onclick="$('#alertclass').hide()">×</button>
+                <p id="msg"></p>
+              </div>
+              <!-- /.box-header -->
+              <!-- form start -->
+              <form role="form" id="allreport" action="allreport.php" method="get">
+                <div class="box-body">
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Start Date</label>
+                    <input type="date" class="form-control" id="sdate" name="sdate" max=<?= date('Y-m-d') ?>>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">End Date</label>
+                    <input type="date" class="form-control" id="edate" name="edate" max=<?= date('Y-m-d') ?>>
+                  </div>
+
+                  <!-- /.box-body -->
+
+                  <div class="box-footer">
+                    <input type="hidden" name="allreport" value="allreport" id="type">
+                    <button type="submit" class="btn btn-success" onclick="return validate()" name="submit">Submit</button>
+                    <button type="reset" class="btn btn-warning">Reset</button>
+                  </div>
+              </form>
             </div>
           </div>
         </div>
@@ -306,7 +347,7 @@ if (isset($_POST['data'])) {
           success: function(response) {
             // console.log(response); 
             var returnedData = JSON.parse(response);
-            console.log(returnedData);            
+            console.log(returnedData);
             $('#farmercount').text(returnedData['farmercount'][0]['farmercount']);
             $('#purchasecount').text(parseFloat(returnedData['farmerpurchase'][0]['farmer_purchase']).toLocaleString('en-IN'));
             $('#farmerpayment').text(parseFloat(returnedData['farmerpayment'][0]['farmer_payment']).toLocaleString('en-IN'));

@@ -136,7 +136,28 @@
           <li><a href="vendorpurchase.php"><i class="fa fa-cart-plus"></i> Add / Update Purchase </a></li>
           <li><a href="vendorspayment.php"><i class="fa fa-paypal"></i> Add / Update Payment </a></li>
         </ul>
-      </li>    
+      </li>  
+      
+      <li class="treeview">
+        <a href="#">
+          <i class="fa  fa-user"></i> <span>Sales </span> <i class="fa  fa-hand-o-down pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+          <li><a href="customer.php"><i class="fa  fa-user"></i> Add / Update Customer </a></li>
+          <li><a href="customerpurchase.php"><i class="fa fa-cart-plus"></i> Add / Update Sales </a></li>
+          <li><a href="customerpayment.php"><i class="fa fa-paypal"></i> Add / Update Payment </a></li>
+        </ul>
+      </li>  
+
+      <li class="treeview">
+        <a href="#">
+          <i class="fa fa-truck"></i> <span>Vehicle </span> <i class="fa  fa-hand-o-down pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+          <li><a href="vehicle.php"><i class="fa fa-truck"></i> Add / Update Vehicle </a></li>          
+          <li><a href="vehiclepayment.php"><i class="fa fa-paypal"></i> Add / Update Payment </a></li>
+        </ul>
+      </li>  
     </ul>
   </section>
   <!-- /.sidebar -->
